@@ -4,13 +4,26 @@
 
 #include <QObject>
 #include <QRect>
-#include "blockview.h"
+#include <QtGui/QImage>
+#include "view.h"
 
-class BlockView :public QRect
+class BlockInterface;
+
+class BlockView : public QRect, public View
 {
 public:
     BlockView();
     BlockView(int x, int y, int width, int heigh);
+    BlockView(QImage *image, BlockInterface* block);
+
+    QImage* getView();
+    BlockInterface* getBlock();
+
+    virtual void paint(QPainter *painter) Q_DECL_OVERRIDE;
+private:
+    BlockInterface* block;
+    QImage *image;
+
 };
 
 

@@ -2,18 +2,37 @@
 
 
 
-
+/**
+ * @brief MainWindow::MainWindow
+ * @param parent
+ */
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+
+
+    //===== plugin system ======================
+    pluginManager = new PluginManager();
+
+    //===== simulink engine initialization =====
+    this->engine = new SimulinkEngine();
+
+
+    //==========================================
+    //===== UI initialization ==================
+    //==========================================
+
+    //===== central widget =====================
     QWidget *widget = new QWidget;
     setCentralWidget(widget);
 
-    pluginManager = new PluginManager();
+    this->statusBar()->show();
+    QString message = tr("Hello everybody!");
+    this->statusBar()->showMessage(message);
 
-
-  //  renderArea = new RenderArea;
-
+    //===== render area ========================
+    //area for rendering blocks and connection
+    renderArea = new RenderArea(this, this->engine);
 
 
 //    QScrollArea *scrollArea = new QScrollArea;
@@ -32,16 +51,18 @@ MainWindow::MainWindow(QWidget *parent)
 //    statusLabel->setAlignment(Qt::AlignCenter);
 //    statusLabel->setFixedHeight(25);
 
+    //===== toolbox ============================
+    toolbox = new Toolbox(this);
+    toolbox->registerObserver(this);
+    toolbox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    toolbox->setFixedHeight(400);
+    toolbox->setFixedWidth(200);
 
-//    toolbox = new Toolbox;
-//    toolbox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-//    toolbox->setFixedHeight(400);
-//    toolbox->setFixedWidth(200);
+    //===== properties ==========================
+    propertiesWidget = new PropertiesWidget(this);
+    propertiesWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 
-//    propertiesWidget = new PropertiesWidget;
-//    propertiesWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
-
-//    propertiesWidget->setFixedWidth(200);
+    propertiesWidget->setFixedWidth(200);
 
 
     QGridLayout *mainLayout = new QGridLayout;
@@ -51,10 +72,10 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-//    mainLayout->addWidget(renderArea,0,0,2,1);
+    mainLayout->addWidget(renderArea,0,0,2,1);
 ////    mainLayout->addWidget(infoLabel,2,0);
-//    mainLayout->addWidget(toolbox,0,1);
-//    mainLayout->addWidget(propertiesWidget,1,1);
+    mainLayout->addWidget(toolbox,0,1);
+    mainLayout->addWidget(propertiesWidget,1,1);
 //    mainLayout->addWidget(statusLabel,2,1);
     widget->setLayout(mainLayout);
 
@@ -62,19 +83,24 @@ MainWindow::MainWindow(QWidget *parent)
     createMenus();
     createToolbars();
 
-    QString message = tr("A context menu is available by right-clicking");
-    statusBar()->showMessage(message);
 
-    setWindowTitle(tr("Menus"));
-    setMinimumSize(160, 160);
-    resize(480, 320);
+    setWindowTitle(tr("Simulink"));
+    setMinimumSize(800, 600);
+    resize(1024, 768);
 }
 
+/**
+ * @brief MainWindow::~MainWindow
+ */
 MainWindow::~MainWindow()
 {
-
+    this->toolbox->unregisterObserver(this);
 }
 
+
+/**
+ * @brief MainWindow::createActions
+ */
 void MainWindow::createActions()
 {
     newFileAction = new QAction(tr("&New"),this);
@@ -120,11 +146,15 @@ void MainWindow::createActions()
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
 
 
-    addBlockAction = new QAction(tr("&New block"), this);
-    connect(addBlockAction, SIGNAL(triggered()),this, SLOT(addBlock()));
+//    addBlockAction = new QAction(tr("&New block"), this);
+//    connect(addBlockAction, SIGNAL(triggered()),this, SLOT(addBlock()));
 
 }
 
+
+/**
+ * @brief MainWindow::createMenus
+ */
 void MainWindow::createMenus()
 {
     fileMenu = menuBar()->addMenu(tr("&File"));
@@ -144,6 +174,9 @@ void MainWindow::createMenus()
         helpMenu->addAction(helpAction);
 }
 
+/**
+ * @brief MainWindow::createToolbars
+ */
 void MainWindow::createToolbars()
 {
 //    QPixmap start("start.png");
@@ -155,15 +188,15 @@ void MainWindow::createToolbars()
 //    QPixmap delete_block("delete_block.png");
 
 
-    QToolBar *mainToolbar = new QToolBar(tr("Main"), this);/*addToolBar("Main toolbar");*/
-    mainToolbar->addAction(addBlockAction);
+  //  QToolBar *mainToolbar = new QToolBar(tr("Main"), this);/*addToolBar("Main toolbar");*/
+    //mainToolbar->addAction(addBlockAction);
 //    mainToolbar->addAction(QIcon(con),"New connector");
 //    mainToolbar->addAction(QIcon(delete_con),"Delete block");
 //    mainToolbar->addAction(QIcon(delete_block),"Delete connector");
 //    mainToolbar->show();
-    mainToolbar->show();
+ //   mainToolbar->show();
 
-    addToolBar(Qt::TopToolBarArea, mainToolbar);
+ //   addToolBar(Qt::TopToolBarArea, mainToolbar);
 
 
 
@@ -191,14 +224,24 @@ void MainWindow::loadPlugins() {
     if(this->pluginManager->loadPlugin(this))
     {
         QString message;
-        std::vector<BlockFactoryInterface*> plugins = pluginManager->getPlugins();
-        BlockFactoryInterface *factory = plugins[0];
-        message = factory->getBlockName();
-        statusBar()->showMessage(message);
+        QMap<QString, BlockFactoryInterface*> plugins = pluginManager->getPlugins();
+        QStringList pluginList = QStringList();
+        QMap<QString, BlockFactoryInterface*>::iterator it;
+        for(it=plugins.begin();it!=plugins.end();it++)
+        {
+            pluginList.push_back(it.key());
+        }
+        this->toolbox->reloadBlockList(pluginList);
+
+
+//        BlockFactoryInterface *factory = (plugins.end()-1).value();
+//        message = factory->getBlockName();
+//        statusBar()->showMessage(message);
+//        this->toolbox->addNewBlock(factory->getBlockName());
     }
     else
     {
-         QString message = tr("dupa");
+         QString message = tr("I dupa blada! Nie wyszlo cos");
          statusBar()->showMessage(message);
     }
 }
@@ -212,8 +255,36 @@ void MainWindow::help() { }
 
 
 
-void MainWindow::addBlock()
+void MainWindow::addBlock(QString name)
 {
-  //this->renderArea->setState(ADD_BLOCK);
+    BlockInterface* block = this->pluginManager->getBlock(name);
+    this->renderArea->setState(EDITION_STATE_ADD_BLOCK);
 }
 
+void MainWindow::valueChanged(ValueType type, QString value)
+{
+    switch (type) {
+    case VALUE_TYPE_RENDER_ACTION:
+        if(value.compare("BlockAdded"))
+        {
+            this->engine->addBlock(this->temporaryBlock);
+            this->temporaryBlock=nullptr;
+        }
+        else if(value.compare("NoBlockAdded"))
+        {
+            this->temporaryBlock=nullptr;
+        }
+        break;
+    case VALUE_TYPE_BLOCK_NAME:
+        temporaryBlock = this->pluginManager->getBlock(value);
+        if(temporaryBlock!=NULL)
+            this->renderArea->addBlock(temporaryBlock);
+        break;
+    case VALUE_TYPE_NEW_CONNECTION:
+        this->renderArea->setState(EDITION_STATE_ADD_CONNECTION);
+        break;
+    default:
+        break;
+    }
+
+}

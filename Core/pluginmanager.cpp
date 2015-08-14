@@ -2,7 +2,8 @@
 
 PluginManager::PluginManager()
 {
-    pluginsLoaded = std::vector<BlockFactoryInterface*>();
+//    pluginsLoaded = std::map<QString,std::shared_ptr<BlockFactoryInterface>>();
+    pluginsLoaded = QMap<QString, BlockFactoryInterface*>();
 }
 
 bool PluginManager::loadPlugin(QWidget* parent)
@@ -13,8 +14,17 @@ bool PluginManager::loadPlugin(QWidget* parent)
     if (plugin)
     {
          BlockFactoryInterface* blockFactory = qobject_cast<BlockFactoryInterface *>(plugin);  //qobject_cast<BlockFactoryInterface*> (plugin);
-         pluginsLoaded.push_back(blockFactory);
-         return true;
+         if(this->pluginsLoaded.find(blockFactory->getBlockName())==this->pluginsLoaded.end())
+         {
+            this->pluginsLoaded.insert(blockFactory->getBlockName(),blockFactory);
+            return true;
+         }
+         else
+         {
+             blockFactory->release();
+             delete blockFactory;
+             return false;
+         }
     }
     else
         return false;
@@ -22,18 +32,26 @@ bool PluginManager::loadPlugin(QWidget* parent)
 
 bool PluginManager::unloadPlugins()
 {
-    std::vector<BlockFactoryInterface*>::iterator it;
+    QMap<QString, BlockFactoryInterface*>::iterator it;
     for(it=this->pluginsLoaded.begin();it!=this->pluginsLoaded.end();it++)
     {
-        (*it)->release();
-        pluginsLoaded.erase(it);
+        it.value()->release();
     }
+    this->pluginsLoaded.clear();
+
     return true;
 }
 
-std::vector<BlockFactoryInterface*> PluginManager::getPlugins()
+QMap<QString, BlockFactoryInterface*> PluginManager::getPlugins()
 {
     return this->pluginsLoaded;
 }
 
+
+BlockInterface* PluginManager::getBlock(QString name)
+{
+    if(this->pluginsLoaded.find(name)!=this->pluginsLoaded.end())
+        return this->pluginsLoaded.find(name).value()->getNewBlock();
+    else return nullptr;
+}
 

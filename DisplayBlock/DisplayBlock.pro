@@ -4,19 +4,23 @@
 #
 #-------------------------------------------------
 
-QT       -= gui
-
 TARGET = DisplayBlock
 TEMPLATE = lib
 
 DEFINES += DISPLAYBLOCK_LIBRARY
+INCLUDEPATH    += ../Core
 
-SOURCES += displayblockfactory.cpp
+SOURCES += displayblockfactory.cpp \
+    displayblock.cpp
 
 HEADERS += displayblockfactory.h\
-        displayblock_global.h
+        displayblock_global.h \
+    displayblock.h
 
 unix {
     target.path = /usr/lib
     INSTALLS += target
 }
+
+RESOURCES += \
+    images.qrc

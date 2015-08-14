@@ -4,6 +4,7 @@
 #include <QObject>
 #include "sumblock_global.h"
 #include "blockfactoryinterface.h"
+#include "sumblock.h"
 
 class SUMBLOCKSHARED_EXPORT SumBlockFactory:
         public QObject,

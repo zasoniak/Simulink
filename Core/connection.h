@@ -2,12 +2,20 @@
 #define CONNECTION_H
 
 #include <QObject>
+#include "connectioninterface.h"
 
-class Connection : public QObject
+class Connection : public ConnectionInterface
 {
-    Q_OBJECT
 public:
-    explicit Connection(QObject *parent = 0);
+    Connection();
+    virtual void connect(BlockInterface*) Q_DECL_OVERRIDE;
+    virtual void disconnect() Q_DECL_OVERRIDE;
+    virtual void run(int) Q_DECL_OVERRIDE;  //numbers
+    virtual void run(double) Q_DECL_OVERRIDE;   //vectors
+    virtual void run(char) Q_DECL_OVERRIDE; //matrixes
+private:
+    BlockInterface* connectedBlock();
+
 
 signals:
 

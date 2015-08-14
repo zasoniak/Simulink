@@ -1,22 +1,24 @@
-#ifndef CONNECTORINTERFACE
-#define CONNECTORINTERFACE
+#ifndef CONNECTIONINTERFACE
+#define CONNECTIONINTERFACE
 
 #include <QObject>
 class BlockInterface;
 
-class ConnectorInterface
+class ConnectionInterface
 {
 public:
-    virtual ~ConnectorInterface() {}
+    virtual ~ConnectionInterface() {}
     virtual void connect(BlockInterface*)=0;
     virtual void disconnect()=0;
+    virtual void run(int)=0;  //numbers
+    virtual void run(double)=0;   //vectors
+    virtual void run(char)=0; //matrixes
 
 };
 
 
-#define ConnectorInterface_iid "sony.simulink.ConnectorInterface"
+#define ConnectionInterface_iid "sony.simulink.ConnectionInterface"
 
-Q_DECLARE_INTERFACE(ConnectorInterface, ConnectorInterface_iid)
+Q_DECLARE_INTERFACE(ConnectionInterface, ConnectionInterface_iid)
 
-#endif // CONNECTORINTERFACE
-
+#endif // ConnectionInterface

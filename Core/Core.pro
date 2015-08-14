@@ -11,6 +11,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = Core
 TEMPLATE = app
 
+QMAKE_CXXFLAGS += -std=c++0x
+#QMAKE_CXXFLAGS += -std=gnu++0x
+#CONFIG += c++11
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -18,15 +21,25 @@ SOURCES += main.cpp\
     toolbox.cpp \
     renderarea.cpp \
     propertieswidget.cpp \
-    blockview.cpp
+    blockview.cpp \
+    simulinkengine.cpp \
+    connection.cpp \
+    observable.cpp \
+    connectionview.cpp
 
 HEADERS  += mainwindow.h \
     blockfactoryinterface.h \
-    connectorinterface.h \
     blockpropertiesinterface.h \
     pluginmanager.h \
     toolbox.h \
     renderarea.h \
     propertieswidget.h \
     blockview.h \
-    blockinterface.h
+    blockinterface.h \
+    simulinkengine.h \
+    connection.h \
+    connectioninterface.h \
+    observer.h \
+    observable.h \
+    connectionview.h \
+    view.h

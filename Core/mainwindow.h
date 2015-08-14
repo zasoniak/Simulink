@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 #include <QObject>
+#include <QMap>
 #include <QMainWindow>
 #include <QApplication>
 #include <QAction>
@@ -14,18 +15,25 @@
 #include <QPluginLoader>
 #include <QFileDialog>
 
-//#include "renderarea.h"
-//#include "toolbox.h"
-//#include "propertieswidget.h"
+#include "renderarea.h"
+#include "toolbox.h"
+#include "propertieswidget.h"
 #include "pluginmanager.h"
 
-class MainWindow : public QMainWindow
+#include "simulinkengine.h"
+
+class MainWindow :
+        public QMainWindow,
+        public Observer
 {
     Q_OBJECT
+    Q_INTERFACES(Observer)
 
 public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+    virtual void valueChanged(ValueType type, QString value) Q_DECL_OVERRIDE;
 protected:
    // void contextMenuEvent(QContextMenuEvent *event) Q_DECL_OVERRIDE;
 
@@ -43,7 +51,8 @@ private slots:
     void about();
     void help();
 
-    void addBlock();
+
+    void addBlock(QString name);
 
 private:
     void createActions();
@@ -69,13 +78,17 @@ private:
     QLabel *statusLabel;
 
 
-    QAction *addBlockAction;
+//    QAction *addBlockAction;
 
-//    RenderArea *renderArea;
-//    Toolbox *toolbox;
-//    PropertiesWidget *propertiesWidget;
+    RenderArea *renderArea;
+    Toolbox *toolbox;
+    PropertiesWidget *propertiesWidget;
 
     PluginManager *pluginManager;
+
+
+    SimulinkEngine *engine;
+    BlockInterface *temporaryBlock;
 
 };
 

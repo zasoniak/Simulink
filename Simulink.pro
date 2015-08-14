@@ -2,4 +2,6 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     SumBlock \
-    Core
+    Core \
+    ConstantValueBlock \
+    DisplayBlock

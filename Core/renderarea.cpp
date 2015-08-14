@@ -3,19 +3,50 @@
 RenderArea::RenderArea(QWidget *parent) : QWidget(parent)
 {
 
-    blockViews = std::vector<BlockView>();
-    BlockView block1 = BlockView(10,10,100,60);
-    blockViews.push_back(block1);
-    BlockView block2 = BlockView(220,100,100,60);
-        blockViews.push_back(block2);
-    BlockView block3 = BlockView(390,140,100,60);
-        blockViews.push_back(block3);
-    BlockView block4 = BlockView(100,290,100,60);
-        blockViews.push_back(block4);
-    BlockView block5 = BlockView(350,350,100,60);
-        blockViews.push_back(block5);
+    blockViews = QVector<BlockView*>();
+//    BlockView* block1 = new BlockView(10,10,100,60);
+//    blockViews.push_back(block1);
+//    BlockView* block2 = new BlockView(220,100,100,60);
+//        blockViews.push_back(block2);
+//    BlockView* block3 = new BlockView(390,140,100,60);
+//        blockViews.push_back(block3);
+//    BlockView* block4 = new BlockView(100,290,100,60);
+//        blockViews.push_back(block4);
+//    BlockView* block5 = new BlockView(350,350,100,60);
+//        blockViews.push_back(block5);
 
-    state = POINTER;
+    this->state = EDITION_STATE_POINTER;
+    this->blockToAdd=NULL;
+    this->connectionBeginBlock=NULL;
+
+
+    this->setAutoFillBackground( true );
+    this->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+    QPalette palette = this->palette();
+    palette.setColor(QPalette::Background, Qt::blue);
+    this->setPalette(palette);
+}
+
+
+RenderArea::RenderArea(QWidget *parent, SimulinkEngine *engine) : QWidget(parent)
+{
+
+    blockViews = QVector<BlockView*>();
+//    BlockView* block1 = new BlockView(10,10,100,60);
+//    blockViews.push_back(block1);
+//    BlockView* block2 = new BlockView(220,100,100,60);
+//        blockViews.push_back(block2);
+//    BlockView* block3 = new BlockView(390,140,100,60);
+//        blockViews.push_back(block3);
+//    BlockView* block4 = new BlockView(100,290,100,60);
+//        blockViews.push_back(block4);
+//    BlockView* block5 = new BlockView(350,350,100,60);
+//        blockViews.push_back(block5);
+
+    this->state = EDITION_STATE_POINTER;
+    this->blockToAdd=NULL;
+    this->connectionBeginBlock=NULL;
+    this->engine= engine;
 
 
     this->setAutoFillBackground( true );
@@ -29,11 +60,22 @@ RenderArea::RenderArea(QWidget *parent) : QWidget(parent)
 
 void RenderArea::paintEvent(QPaintEvent *)
 {
-    QPainter painter(this);
-    std::vector<BlockView>::iterator it;
-    for(it=blockViews.begin();it!=blockViews.end();it++)
+    QPainter *painter = new QPainter(this);
+
+    QVector<BlockView*>::iterator blockIterator;
+    for(blockIterator=blockViews.begin();blockIterator!=blockViews.end();blockIterator++)
     {
-      painter.drawRect(*it);
+        (*blockIterator)->paint(painter);
+
+      //painter.drawRect(*(*blockIterator));
+      //painter->drawImage((*blockIterator)->topLeft(),*((*blockIterator)->getView()));
+    }
+
+
+    QVector<ConnectionView*>::iterator connectionIterator;
+    for(connectionIterator=connectionViews.begin();connectionIterator!=connectionViews.end();connectionIterator++)
+    {
+        (*connectionIterator)->paint(painter);
     }
 }
 
@@ -42,7 +84,7 @@ void RenderArea::mouseMoveEvent(QMouseEvent *event)
 {
     switch(state)
     {
-    case POINTER:
+    case EDITION_STATE_POINTER:
     {
         BlockView  *editedBlock = checkBlockByCoordinates(event->pos());
         if(editedBlock!=NULL)
@@ -65,7 +107,7 @@ void RenderArea::mousePressEvent(QMouseEvent *event)
 {
     switch(this->state)
     {
-    case POINTER:
+    case EDITION_STATE_POINTER:
     {
         BlockView  *editedBlock = checkBlockByCoordinates(event->pos());
         if(editedBlock!=NULL)
@@ -74,17 +116,53 @@ void RenderArea::mousePressEvent(QMouseEvent *event)
         }
         break;
     }
-    case ADD_BLOCK:
+    case EDITION_STATE_ADD_BLOCK:
     {
         BlockView  *editedBlock = checkBlockByCoordinates(event->pos());
         if(editedBlock==NULL)
         {
-            this->state = POINTER;
-            BlockView block = BlockView(-500,-500,100,60);
-            block.moveCenter(event->pos());
+            setState(EDITION_STATE_POINTER);
+            BlockView* block = new BlockView(this->blockToAdd->getView(),this->blockToAdd);
+//            BlockView block = BlockView(-500,-500,100,60);
+            block->moveCenter(event->pos());
             blockViews.push_back(block);
             repaint();
+            this->engine->addBlock(block->getBlock());
+            this->blockToAdd=NULL;
         }
+        break;
+    }
+    case EDITION_STATE_ADD_CONNECTION:
+    {
+        if(this->connectionBeginBlock==NULL)    //pierwszy klik
+        {
+            BlockView* blockSelected = checkBlockByCoordinates(event->pos());
+            if(blockSelected)
+            {
+                this->connectionBeginBlock=blockSelected;
+            }
+            else
+            {
+                   this->setState(EDITION_STATE_POINTER);
+            }
+        }
+        else    //drugi klik
+        {
+            BlockView* blockSelected = checkBlockByCoordinates(event->pos());
+            if(blockSelected)
+            {
+                ConnectionView* connectionView = this->addConnection(this->connectionBeginBlock,blockSelected);
+                this->engine->addConnection(connectionView->getConnection());
+            //    this->connectionViews.push_back(connectionView);
+                this->connectionBeginBlock=NULL;
+                this->setState(EDITION_STATE_POINTER);
+            }
+            else
+            {
+                   this->setState(EDITION_STATE_POINTER);
+            }
+        }
+        break;
     }
     default:
         break;
@@ -98,18 +176,18 @@ void RenderArea::mousePressEvent(QMouseEvent *event)
  */
 BlockView* RenderArea::checkBlockByCoordinates(QPoint position)
 {
-    std::vector<BlockView>::iterator it;
+    QVector<BlockView*>::iterator it;
     for(it=blockViews.begin();it!=blockViews.end();it++)
     {
-      if(position.rx()>=it->left() && position.rx()<=it->right() &&position.ry()>=it->top() &&position.ry()<=it->bottom())
-        return &(*it);
+      if(position.rx()>=(*it)->left() && position.rx()<=(*it)->right() &&position.ry()>=(*it)->top() &&position.ry()<=(*it)->bottom())
+        return (*it);
     }
     return NULL;
 }
 
 /**
  * @brief RenderArea::checkCollisions
- * Check if block doesnt collide with others and doesnt exceed widget size
+ * Check if block doesn't collide with others and doesn't exceed widget size
  *
  * @param position - mouse cursor position
  * @param block - currently moving block
@@ -117,15 +195,13 @@ BlockView* RenderArea::checkBlockByCoordinates(QPoint position)
  */
 bool RenderArea::checkCollisions(QPoint position, BlockView *block)
 {
-    int a = this->width();
-    int b = this->height();
-    if((position.rx()-50)>=0 && (position.rx()+50)<=this->width() && (position.ry()-30)>=0 &&(position.ry()+30)<=this->height())
+    if((position.rx()-60)>=0 && (position.rx()+60)<=this->width() && (position.ry()-30)>=0 &&(position.ry()+30)<=this->height())
     {
-        std::vector<BlockView>::iterator it;
+        QVector<BlockView*>::iterator it;
         for(it=blockViews.begin();it!=blockViews.end();it++)
         {
-            if(&(*it)!=block)
-                if((position.rx()-50)<=it->right() && (position.rx()+50)>=it->left() && (position.ry()-30)<=it->bottom() &&(position.ry()+30)>=it->top())
+            if((*it)!=block)
+                if((position.rx()-60)<=(*it)->right() && (position.rx()+60)>=(*it)->left() && (position.ry()-30)<=(*it)->bottom() &&(position.ry()+30)>=(*it)->top())
                     return false;
         }
         return true;
@@ -136,4 +212,17 @@ bool RenderArea::checkCollisions(QPoint position, BlockView *block)
 void RenderArea::setState(EditionState state)
 {
     this->state =state;
+}
+
+void RenderArea::addBlock(BlockInterface* block)
+{
+    this->blockToAdd=block;
+    this->setState(EDITION_STATE_ADD_BLOCK);
+}
+
+
+ConnectionView* RenderArea::addConnection(BlockView* begin, BlockView* end)
+{
+    ConnectionView* connection = new ConnectionView(begin, end);
+    this->connectionViews.push_back(connection);
 }

@@ -4,32 +4,37 @@
 #include <QWidget>
 #include <QPainter>
 #include <QMouseEvent>
+#include <QVector>
 
 #include "blockview.h"
+#include "connectionview.h"
+#include "blockinterface.h"
+#include "simulinkengine.h"
 
 
 //enumerations
 enum EditionState {
-    POINTER,
-    ADD_BLOCK,
-    DELETE_BLOCK,
-    ADD_CONNECTION,
-    DELETE_CONNECTION
+    EDITION_STATE_POINTER,
+    EDITION_STATE_ADD_BLOCK,
+    EDITION_STATE_DELETE_BLOCK,
+    EDITION_STATE_ADD_CONNECTION,
+    EDITION_STATE_DELETE_CONNECTION
 };
 
 class RenderArea : public QWidget
 {
     Q_OBJECT
-    Q_ENUMS(EditionState);
+    Q_ENUMS(EditionState)
 public:
     explicit RenderArea(QWidget *parent = 0);
+    explicit RenderArea(QWidget *parent = 0, SimulinkEngine* engine=0);
 
 
     //block manipulation
     void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
     void mousePressEvent(QMouseEvent * event) Q_DECL_OVERRIDE;
 
-
+    void addBlock(BlockInterface* block);
 
 
     void setState(EditionState state);
@@ -44,9 +49,15 @@ protected:
 
 
 private:
+    SimulinkEngine* engine;
     EditionState state;
-    //BlockInterface block;
-    std::vector<BlockView> blockViews;
+    BlockInterface* blockToAdd;
+    BlockView* connectionBeginBlock;
+    QVector<BlockView*> blockViews;
+    QVector<ConnectionView*> connectionViews;
+
+
+    ConnectionView* addConnection(BlockView* begin, BlockView* end);
     BlockView* checkBlockByCoordinates(QPoint position);
     bool checkCollisions(QPoint position, BlockView *block);
 

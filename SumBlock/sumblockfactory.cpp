@@ -8,7 +8,7 @@ SumBlockFactory::SumBlockFactory()
 
 BlockInterface* SumBlockFactory::getNewBlock()
 {
-    return NULL;
+    return new SumBlock();
 }
 
 QString SumBlockFactory::getBlockName()

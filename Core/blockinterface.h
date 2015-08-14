@@ -1,8 +1,11 @@
 #ifndef BLOCKINTERFACE
 #define BLOCKINTERFACE
 
-#include "connectorinterface.h"
+#include "connectioninterface.h"
 #include "blockpropertiesinterface.h"
+#include <QtGui/QImage>
+
+class BlockView;
 
 class BlockInterface
 {
@@ -12,11 +15,13 @@ public:
     virtual void initialize()=0;
     virtual void run()=0;
 
-    virtual void connect(ConnectorInterface *)=0;
-    virtual void disconnect()=0;
+    virtual bool connectInput(ConnectionInterface *) =0;
+    virtual bool connectOutput(ConnectionInterface *) =0;
+    virtual void disconnect(ConnectionInterface *) =0;
 
     virtual BlockPropertiesInterface* getProperties()=0;
     virtual QString getBlockName()=0;
+    virtual QImage* getView()=0;
 };
 
 
