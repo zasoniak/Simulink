@@ -8,7 +8,7 @@ ConstantValueBlockFactory::ConstantValueBlockFactory()
 
 BlockInterface* ConstantValueBlockFactory::getNewBlock()
 {
-    return NULL;
+    return new ConstantValueBlock();
 }
 
 QString ConstantValueBlockFactory::getBlockName()

@@ -4,16 +4,6 @@ RenderArea::RenderArea(QWidget *parent) : QWidget(parent)
 {
 
     blockViews = QVector<BlockView*>();
-//    BlockView* block1 = new BlockView(10,10,100,60);
-//    blockViews.push_back(block1);
-//    BlockView* block2 = new BlockView(220,100,100,60);
-//        blockViews.push_back(block2);
-//    BlockView* block3 = new BlockView(390,140,100,60);
-//        blockViews.push_back(block3);
-//    BlockView* block4 = new BlockView(100,290,100,60);
-//        blockViews.push_back(block4);
-//    BlockView* block5 = new BlockView(350,350,100,60);
-//        blockViews.push_back(block5);
 
     this->state = EDITION_STATE_POINTER;
     this->blockToAdd=NULL;
@@ -23,36 +13,29 @@ RenderArea::RenderArea(QWidget *parent) : QWidget(parent)
     this->setAutoFillBackground( true );
     this->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     QPalette palette = this->palette();
-    palette.setColor(QPalette::Background, Qt::blue);
+    palette.setColor(QPalette::Background, Qt::lightGray);
     this->setPalette(palette);
 }
 
 
-RenderArea::RenderArea(QWidget *parent, SimulinkEngine *engine) : QWidget(parent)
+RenderArea::RenderArea(QWidget *parent, SimulinkEngine *engine, PropertiesWidget * propertiesWidget) : QWidget(parent)
 {
 
     blockViews = QVector<BlockView*>();
-//    BlockView* block1 = new BlockView(10,10,100,60);
-//    blockViews.push_back(block1);
-//    BlockView* block2 = new BlockView(220,100,100,60);
-//        blockViews.push_back(block2);
-//    BlockView* block3 = new BlockView(390,140,100,60);
-//        blockViews.push_back(block3);
-//    BlockView* block4 = new BlockView(100,290,100,60);
-//        blockViews.push_back(block4);
-//    BlockView* block5 = new BlockView(350,350,100,60);
-//        blockViews.push_back(block5);
 
+    //default values
     this->state = EDITION_STATE_POINTER;
     this->blockToAdd=NULL;
     this->connectionBeginBlock=NULL;
     this->engine= engine;
 
+    this->propertiesWidget = propertiesWidget;
 
+    //configuration
     this->setAutoFillBackground( true );
     this->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     QPalette palette = this->palette();
-    palette.setColor(QPalette::Background, Qt::blue);
+    palette.setColor(QPalette::Background, Qt::lightGray);
     this->setPalette(palette);
 }
 
@@ -112,12 +95,13 @@ void RenderArea::mousePressEvent(QMouseEvent *event)
         BlockView  *editedBlock = checkBlockByCoordinates(event->pos());
         if(editedBlock!=NULL)
         {
-
+            this->propertiesWidget->loadProperties(editedBlock->getBlock()->getProperties());
         }
         break;
     }
     case EDITION_STATE_ADD_BLOCK:
     {
+        this->propertiesWidget->unloadProperties();
         BlockView  *editedBlock = checkBlockByCoordinates(event->pos());
         if(editedBlock==NULL)
         {
@@ -126,7 +110,7 @@ void RenderArea::mousePressEvent(QMouseEvent *event)
 //            BlockView block = BlockView(-500,-500,100,60);
             block->moveCenter(event->pos());
             blockViews.push_back(block);
-            repaint();
+//            repaint();
             this->engine->addBlock(block->getBlock());
             this->blockToAdd=NULL;
         }
@@ -134,6 +118,7 @@ void RenderArea::mousePressEvent(QMouseEvent *event)
     }
     case EDITION_STATE_ADD_CONNECTION:
     {
+        this->propertiesWidget->unloadProperties();
         if(this->connectionBeginBlock==NULL)    //pierwszy klik
         {
             BlockView* blockSelected = checkBlockByCoordinates(event->pos());
@@ -152,10 +137,12 @@ void RenderArea::mousePressEvent(QMouseEvent *event)
             if(blockSelected)
             {
                 ConnectionView* connectionView = this->addConnection(this->connectionBeginBlock,blockSelected);
-                this->engine->addConnection(connectionView->getConnection());
-            //    this->connectionViews.push_back(connectionView);
-                this->connectionBeginBlock=NULL;
-                this->setState(EDITION_STATE_POINTER);
+                if(connectionView)
+                {
+                    this->engine->addConnection(connectionView->getConnection());
+                    this->connectionBeginBlock=NULL;
+                    this->setState(EDITION_STATE_POINTER);
+                }
             }
             else
             {
@@ -166,6 +153,21 @@ void RenderArea::mousePressEvent(QMouseEvent *event)
     }
     default:
         break;
+    }
+    repaint();
+}
+
+
+
+void RenderArea::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    if(this->state == EDITION_STATE_POINTER)
+    {
+        BlockView  *editedBlock = checkBlockByCoordinates(event->pos());
+        if(editedBlock!=NULL)
+        {
+            editedBlock->getBlock()->openWindow();
+        }
     }
 }
 
@@ -223,6 +225,12 @@ void RenderArea::addBlock(BlockInterface* block)
 
 ConnectionView* RenderArea::addConnection(BlockView* begin, BlockView* end)
 {
-    ConnectionView* connection = new ConnectionView(begin, end);
-    this->connectionViews.push_back(connection);
+    ConnectionView* connection = new ConnectionView();
+    if(connection->initialize(begin,end))
+    {
+        this->connectionViews.push_back(connection);
+        this->repaint();
+        return connection;
+    }
+    return NULL;
 }

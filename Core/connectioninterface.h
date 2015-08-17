@@ -2,17 +2,20 @@
 #define CONNECTIONINTERFACE
 
 #include <QObject>
+#include "data.h"
 class BlockInterface;
 
 class ConnectionInterface
 {
 public:
     virtual ~ConnectionInterface() {}
-    virtual void connect(BlockInterface*)=0;
+    virtual bool connectInput(BlockInterface*)=0;
+    virtual bool connectOutput(BlockInterface*)=0;
+
+
     virtual void disconnect()=0;
-    virtual void run(int)=0;  //numbers
-    virtual void run(double)=0;   //vectors
-    virtual void run(char)=0; //matrixes
+
+    virtual void run(Data* data)=0;
 
 };
 

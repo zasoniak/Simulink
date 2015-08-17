@@ -12,11 +12,13 @@ DEFINES += CONSTANTVALUEBLOCK_LIBRARY
 INCLUDEPATH    += ../Core
 
 SOURCES += constantvalueblockfactory.cpp \
-    constantvalueblock.cpp
+    constantvalueblock.cpp \
+    constantvalueblockproperties.cpp
 
 HEADERS += constantvalueblockfactory.h\
         constantvalueblock_global.h \
-    constantvalueblock.h
+    constantvalueblock.h \
+    constantvalueblockproperties.h
 
 unix {
     target.path = /usr/lib

@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "connectioninterface.h"
+#include "connection.h"
 #include "view.h"
 #include "blockview.h"
 
@@ -10,7 +11,7 @@ class ConnectionView : public View
 {
 public:
     ConnectionView();
-    ConnectionView(BlockView* begin, BlockView* end);
+    bool initialize(BlockView* begin, BlockView* end);
     ConnectionInterface* getConnection();
     virtual void paint(QPainter *painter) Q_DECL_OVERRIDE;
 private:

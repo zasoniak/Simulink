@@ -52,8 +52,6 @@ private slots:
     void help();
 
 
-    void addBlock(QString name);
-
 private:
     void createActions();
     void createMenus();

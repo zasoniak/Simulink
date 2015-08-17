@@ -3,6 +3,7 @@
 
 #include "connectioninterface.h"
 #include "blockpropertiesinterface.h"
+#include "data.h"
 #include <QtGui/QImage>
 
 class BlockView;
@@ -13,7 +14,7 @@ public:
     virtual ~BlockInterface() {}
 
     virtual void initialize()=0;
-    virtual void run()=0;
+    virtual void run(Data* data=0, ConnectionInterface* source=0)=0;
 
     virtual bool connectInput(ConnectionInterface *) =0;
     virtual bool connectOutput(ConnectionInterface *) =0;
@@ -22,6 +23,7 @@ public:
     virtual BlockPropertiesInterface* getProperties()=0;
     virtual QString getBlockName()=0;
     virtual QImage* getView()=0;
+    virtual void openWindow()=0;
 };
 
 

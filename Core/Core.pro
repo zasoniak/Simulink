@@ -25,7 +25,9 @@ SOURCES += main.cpp\
     simulinkengine.cpp \
     connection.cpp \
     observable.cpp \
-    connectionview.cpp
+    connectionview.cpp \
+    propertiesmodel.cpp \
+    data.cpp
 
 HEADERS  += mainwindow.h \
     blockfactoryinterface.h \
@@ -42,4 +44,6 @@ HEADERS  += mainwindow.h \
     observer.h \
     observable.h \
     connectionview.h \
-    view.h
+    view.h \
+    propertiesmodel.h \
+    data.h

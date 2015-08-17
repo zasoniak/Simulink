@@ -30,33 +30,6 @@ MainWindow::MainWindow(QWidget *parent)
     QString message = tr("Hello everybody!");
     this->statusBar()->showMessage(message);
 
-    //===== render area ========================
-    //area for rendering blocks and connection
-    renderArea = new RenderArea(this, this->engine);
-
-
-//    QScrollArea *scrollArea = new QScrollArea;
-//    scrollArea->setBackgroundRole(QPalette::Dark);
-//    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-//    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-//    scrollArea->setWidget(renderArea);
-
-//    infoLabel = new QLabel(tr("<i>Choose a menu option, or right-click to invoke a context menu</i>"));
-//    infoLabel->setFrameStyle(QFrame::StyledPanel|QFrame::Sunken);
-//    infoLabel->setAlignment(Qt::AlignCenter);
-//    infoLabel->setFixedHeight(25);
-
-//    statusLabel = new QLabel(tr("status"));
-//    statusLabel->setFrameStyle(QFrame::StyledPanel|QFrame::Sunken);
-//    statusLabel->setAlignment(Qt::AlignCenter);
-//    statusLabel->setFixedHeight(25);
-
-    //===== toolbox ============================
-    toolbox = new Toolbox(this);
-    toolbox->registerObserver(this);
-    toolbox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    toolbox->setFixedHeight(400);
-    toolbox->setFixedWidth(200);
 
     //===== properties ==========================
     propertiesWidget = new PropertiesWidget(this);
@@ -65,6 +38,23 @@ MainWindow::MainWindow(QWidget *parent)
     propertiesWidget->setFixedWidth(200);
 
 
+    //===== render area ========================
+    renderArea = new RenderArea(this, this->engine, this->propertiesWidget);
+
+
+
+    //===== toolbox ============================
+    toolbox = new Toolbox(this);
+    toolbox->registerObserver(this);
+    toolbox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    toolbox->setFixedHeight(400);
+    toolbox->setFixedWidth(200);
+
+
+
+
+
+    //===== main window layout =================
     QGridLayout *mainLayout = new QGridLayout;
     mainLayout->setColumnMinimumWidth(0,400);
     mainLayout->setColumnStretch(0,4);
@@ -73,20 +63,20 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     mainLayout->addWidget(renderArea,0,0,2,1);
-////    mainLayout->addWidget(infoLabel,2,0);
     mainLayout->addWidget(toolbox,0,1);
     mainLayout->addWidget(propertiesWidget,1,1);
-//    mainLayout->addWidget(statusLabel,2,1);
     widget->setLayout(mainLayout);
 
+
+    //===== other parts of main window ========
     createActions();
     createMenus();
-    createToolbars();
+    //createToolbars();
 
-
+    //====== title and size policy ============
     setWindowTitle(tr("Simulink"));
     setMinimumSize(800, 600);
-    resize(1024, 768);
+    resize(800,600);
 }
 
 /**
@@ -144,11 +134,6 @@ void MainWindow::createActions()
     aboutAction = new QAction(tr("&About"),this);
     aboutAction->setStatusTip(tr("About simulink program"));
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
-
-
-//    addBlockAction = new QAction(tr("&New block"), this);
-//    connect(addBlockAction, SIGNAL(triggered()),this, SLOT(addBlock()));
-
 }
 
 
@@ -158,20 +143,20 @@ void MainWindow::createActions()
 void MainWindow::createMenus()
 {
     fileMenu = menuBar()->addMenu(tr("&File"));
-        fileMenu->addAction(newFileAction);
-        fileMenu->addAction(openAction);
-        fileMenu->addAction(saveAction);
-        fileMenu->addAction(closeAction);
-        fileMenu->addSeparator();
-        fileMenu->addAction(exitAction);
+    fileMenu->addAction(newFileAction);
+    fileMenu->addAction(openAction);
+    fileMenu->addAction(saveAction);
+    fileMenu->addAction(closeAction);
+    fileMenu->addSeparator();
+    fileMenu->addAction(exitAction);
 
-        pluginMenu = menuBar()->addMenu(tr("&Plugins"));
-        pluginMenu->addAction(loadPluginsAction);
-        pluginMenu->addAction(unLoadPluginsAction);
+    pluginMenu = menuBar()->addMenu(tr("&Plugins"));
+    pluginMenu->addAction(loadPluginsAction);
+    pluginMenu->addAction(unLoadPluginsAction);
 
-        helpMenu = menuBar()->addMenu(tr("&Help"));
-        helpMenu->addAction(aboutAction);
-        helpMenu->addAction(helpAction);
+    helpMenu = menuBar()->addMenu(tr("&Help"));
+    helpMenu->addAction(aboutAction);
+    helpMenu->addAction(helpAction);
 }
 
 /**
@@ -223,7 +208,7 @@ void MainWindow::exit()
 void MainWindow::loadPlugins() {
     if(this->pluginManager->loadPlugin(this))
     {
-        QString message;
+
         QMap<QString, BlockFactoryInterface*> plugins = pluginManager->getPlugins();
         QStringList pluginList = QStringList();
         QMap<QString, BlockFactoryInterface*>::iterator it;
@@ -234,10 +219,11 @@ void MainWindow::loadPlugins() {
         this->toolbox->reloadBlockList(pluginList);
 
 
-//        BlockFactoryInterface *factory = (plugins.end()-1).value();
-//        message = factory->getBlockName();
-//        statusBar()->showMessage(message);
-//        this->toolbox->addNewBlock(factory->getBlockName());
+        QString message = tr("New block: ");
+        BlockFactoryInterface *factory = (plugins.end()-1).value();
+        message.append(factory->getBlockName());
+        message.append(tr(" added"));
+        statusBar()->showMessage(message);
     }
     else
     {
@@ -253,13 +239,6 @@ void MainWindow::unLoadPlugins() {
 void MainWindow::about() { }
 void MainWindow::help() { }
 
-
-
-void MainWindow::addBlock(QString name)
-{
-    BlockInterface* block = this->pluginManager->getBlock(name);
-    this->renderArea->setState(EDITION_STATE_ADD_BLOCK);
-}
 
 void MainWindow::valueChanged(ValueType type, QString value)
 {
@@ -286,5 +265,4 @@ void MainWindow::valueChanged(ValueType type, QString value)
     default:
         break;
     }
-
 }

@@ -1,18 +1,20 @@
-#ifndef SUMBLOCKPROPERTIES_H
-#define SUMBLOCKPROPERTIES_H
+#ifndef DISPLAYBLOCKPROPERTIES_H
+#define DISPLAYBLOCKPROPERTIES_H
+
 
 #include <QMap>
 #include "blockpropertiesinterface.h"
 
-class SumBlockProperties :
+
+class DisplayBlockProperties:
         public BlockPropertiesInterface
 {
     Q_INTERFACES(BlockPropertiesInterface)
 
 public:
-    SumBlockProperties();
+    DisplayBlockProperties();
 
-    virtual ~SumBlockProperties() {}
+    virtual ~DisplayBlockProperties() {}
 
     virtual QMap<QString, double>* getProperties() Q_DECL_OVERRIDE;
     virtual void saveProperty(QString name, double value) Q_DECL_OVERRIDE;
@@ -23,4 +25,5 @@ private:
 
 };
 
-#endif // SUMBLOCKPROPERTIES_H
+#endif // DISPLAYBLOCKPROPERTIES_H
+

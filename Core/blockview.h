@@ -20,6 +20,7 @@ public:
     BlockInterface* getBlock();
 
     virtual void paint(QPainter *painter) Q_DECL_OVERRIDE;
+
 private:
     BlockInterface* block;
     QImage *image;

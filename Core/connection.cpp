@@ -2,32 +2,45 @@
 
 Connection::Connection()
 {
-
+    this->input=NULL;
+    this->output=NULL;
 }
 
 
 
-void Connection::connect(BlockInterface*)
+bool Connection::connectInput(BlockInterface* input)
 {
+    if(input)
+    {
+        this->input=input;
+        this->input->connectOutput(this);
+        return true;
+    }
+    return false;
+}
+
+bool Connection::connectOutput(BlockInterface* output)
+{
+    if(output)
+    {
+        this->output=output;
+        this->output->connectInput(this);
+        return true;
+    }
+    return false;
 
 }
 
 void Connection::disconnect()
 {
-
+    this->input->disconnect(this);
+    this->input=NULL;
+    this->output->disconnect(this);
+    this->output=NULL;
 }
 
-void Connection::run(int)
+void Connection::run(Data* data)
 {
-
+    this->output->run(data, this);
 }
 
-void Connection::run(double)
-{
-
-}
-
-void Connection::run(char)
-{
-
-}

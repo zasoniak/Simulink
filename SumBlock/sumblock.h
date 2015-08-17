@@ -21,7 +21,7 @@ public:
     explicit SumBlock(QObject *parent = 0);
 
     virtual void initialize() Q_DECL_OVERRIDE;
-    virtual void run() Q_DECL_OVERRIDE;
+ virtual void run(Data* data, ConnectionInterface* source=0) Q_DECL_OVERRIDE;
 
     virtual bool connectInput(ConnectionInterface *) Q_DECL_OVERRIDE;
     virtual bool connectOutput(ConnectionInterface *) Q_DECL_OVERRIDE;
@@ -31,13 +31,16 @@ public:
     virtual QString getBlockName() Q_DECL_OVERRIDE;
     virtual QImage* getView() Q_DECL_OVERRIDE;
 
+    virtual void openWindow() Q_DECL_OVERRIDE;
+
 private:
     BlockPropertiesInterface* properties;
     const static QString blockName;
-//    QVector<T1> inputData;
-//    T1 outputData;
+//    QVector<Data*> inputData;
+    Data* outputData;
     QVector<ConnectionInterface*> inputs;
     QVector<ConnectionInterface*> outputs;
+    QMap<ConnectionInterface*,Data*> inputData;
 
 signals:
 

@@ -4,10 +4,15 @@
 #include <QObject>
 #include <QVector>
 #include <QtGui/QImage>
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QTextEdit>
 
 #include "blockinterface.h"
 #include "blockview.h"
 #include "blockfactoryinterface.h"
+#include "displayblockproperties.h"
 
 
 class DisplayBlock:
@@ -21,7 +26,7 @@ public:
     explicit DisplayBlock(QObject *parent= 0);
 
     virtual void initialize() Q_DECL_OVERRIDE;
-    virtual void run() Q_DECL_OVERRIDE;
+    virtual void run(Data* data=0, ConnectionInterface* source=0) Q_DECL_OVERRIDE;
 
 
     virtual bool connectInput(ConnectionInterface *) Q_DECL_OVERRIDE;
@@ -32,13 +37,22 @@ public:
     virtual QString getBlockName() Q_DECL_OVERRIDE;
     virtual QImage* getView() Q_DECL_OVERRIDE;
 
+    virtual void openWindow() Q_DECL_OVERRIDE;
+
 private:
     BlockPropertiesInterface* properties;
     const static QString blockName;
-//    QVector<T1> inputData;
-//    T1 outputData;
+    QVector<Data*>inputData;
     QVector<ConnectionInterface*> inputs;
-    QVector<ConnectionInterface*> outputs;
+
+    //display data
+    QDialog* dialog;
+    QVBoxLayout* changingLayout;
+    QVector<QTextEdit*> displayedData;
+    QVector<QLabel*> displayedInputs;
+
+    void refreshDialog();
+    QString dataToText(Data* data);
 };
 
 #endif // DISPLAYBLOCK_H

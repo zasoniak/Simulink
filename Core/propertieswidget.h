@@ -3,7 +3,15 @@
 
 #include <QObject>
 #include <QWidget>
+#include <QTableView>
+#include <QHBoxLayout>
+
+
+
+
 #include "blockpropertiesinterface.h"
+
+#include "propertiesmodel.h"
 
 class PropertiesWidget : public QWidget
 {
@@ -14,6 +22,11 @@ public:
     void unloadProperties();
 private:
     void saveProperties();
+
+    BlockPropertiesInterface *properties;
+    QTableView* propertiesTableView;
+    PropertiesModel *propertiesModel;
+
 signals:
 
 public slots:

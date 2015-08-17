@@ -10,6 +10,7 @@
 #include "connectionview.h"
 #include "blockinterface.h"
 #include "simulinkengine.h"
+#include "propertieswidget.h"
 
 
 //enumerations
@@ -27,12 +28,14 @@ class RenderArea : public QWidget
     Q_ENUMS(EditionState)
 public:
     explicit RenderArea(QWidget *parent = 0);
-    explicit RenderArea(QWidget *parent = 0, SimulinkEngine* engine=0);
+    explicit RenderArea(QWidget *parent = 0, SimulinkEngine* engine=0, PropertiesWidget* propertiesWidget=0);
 
 
     //block manipulation
     void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
     void mousePressEvent(QMouseEvent * event) Q_DECL_OVERRIDE;
+
+    void mouseDoubleClickEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
 
     void addBlock(BlockInterface* block);
 
@@ -50,6 +53,7 @@ protected:
 
 private:
     SimulinkEngine* engine;
+    PropertiesWidget* propertiesWidget;
     EditionState state;
     BlockInterface* blockToAdd;
     BlockView* connectionBeginBlock;

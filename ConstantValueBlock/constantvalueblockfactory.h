@@ -5,6 +5,8 @@
 #include "constantvalueblock_global.h"
 #include "blockfactoryinterface.h"
 
+#include "constantvalueblock.h"
+
 class CONSTANTVALUEBLOCKSHARED_EXPORT ConstantValueBlockFactory:
         public QObject,
         public BlockFactoryInterface

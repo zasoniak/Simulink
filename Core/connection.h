@@ -3,18 +3,19 @@
 
 #include <QObject>
 #include "connectioninterface.h"
+#include "blockinterface.h"
 
 class Connection : public ConnectionInterface
 {
 public:
     Connection();
-    virtual void connect(BlockInterface*) Q_DECL_OVERRIDE;
+    virtual bool connectInput(BlockInterface*) Q_DECL_OVERRIDE;
+    virtual bool connectOutput(BlockInterface *) Q_DECL_OVERRIDE;
     virtual void disconnect() Q_DECL_OVERRIDE;
-    virtual void run(int) Q_DECL_OVERRIDE;  //numbers
-    virtual void run(double) Q_DECL_OVERRIDE;   //vectors
-    virtual void run(char) Q_DECL_OVERRIDE; //matrixes
+    virtual void run(Data* data) Q_DECL_OVERRIDE; //matrixes
+
 private:
-    BlockInterface* connectedBlock();
+    BlockInterface *input, *output;
 
 
 signals:
