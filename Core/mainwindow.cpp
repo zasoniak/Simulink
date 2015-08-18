@@ -134,6 +134,10 @@ void MainWindow::createActions()
     aboutAction = new QAction(tr("&About"),this);
     aboutAction->setStatusTip(tr("About simulink program"));
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
+
+    runAction = new QAction(tr("&Run"),this);
+    runAction->setStatusTip(tr("Run computation"));
+    connect(runAction,SIGNAL(triggered()),this,SLOT(run()));
 }
 
 
@@ -149,6 +153,10 @@ void MainWindow::createMenus()
     fileMenu->addAction(closeAction);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAction);
+
+    computeMenu = menuBar()->addMenu(tr("&Compute"));
+    computeMenu->addAction(runAction);
+
 
     pluginMenu = menuBar()->addMenu(tr("&Plugins"));
     pluginMenu->addAction(loadPluginsAction);
@@ -202,6 +210,11 @@ void MainWindow::exit()
 {
     close();
     qApp->quit();
+}
+
+void MainWindow::run()
+{
+    this->engine->run();
 }
 
 //plugin menu

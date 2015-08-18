@@ -7,14 +7,11 @@ ConnectionView::ConnectionView()
     this->connection = NULL;
 }
 
-
-bool ConnectionView::initialize(BlockView* begin, BlockView* end)
+ConnectionView::ConnectionView(BlockView *begin, BlockView *end, ConnectionInterface *connection)
 {
     this->begin=begin;
     this->end=end;
-    this->connection = new Connection();
-    this->connection->connectInput(begin->getBlock());
-    this->connection->connectOutput(end->getBlock());
+    this->connection=connection;
 }
 
 void ConnectionView::paint(QPainter *painter)

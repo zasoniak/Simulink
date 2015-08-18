@@ -61,7 +61,7 @@ private:
     QVector<ConnectionView*> connectionViews;
 
 
-    ConnectionView* addConnection(BlockView* begin, BlockView* end);
+    ConnectionView* addConnection(BlockView* begin, BlockView* end, ConnectionInterface* connection);
     BlockView* checkBlockByCoordinates(QPoint position);
     bool checkCollisions(QPoint position, BlockView *block);
 

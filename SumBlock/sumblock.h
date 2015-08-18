@@ -21,7 +21,7 @@ public:
     explicit SumBlock(QObject *parent = 0);
 
     virtual void initialize() Q_DECL_OVERRIDE;
- virtual void run(Data* data, ConnectionInterface* source=0) Q_DECL_OVERRIDE;
+    virtual void run(Data* data=0, ConnectionInterface* source=0) Q_DECL_OVERRIDE;
 
     virtual bool connectInput(ConnectionInterface *) Q_DECL_OVERRIDE;
     virtual bool connectOutput(ConnectionInterface *) Q_DECL_OVERRIDE;

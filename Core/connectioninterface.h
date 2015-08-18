@@ -9,8 +9,8 @@ class ConnectionInterface
 {
 public:
     virtual ~ConnectionInterface() {}
-    virtual bool connectInput(BlockInterface*)=0;
-    virtual bool connectOutput(BlockInterface*)=0;
+    virtual void connectInput(BlockInterface*)=0;
+    virtual void connectOutput(BlockInterface*)=0;
 
 
     virtual void disconnect()=0;

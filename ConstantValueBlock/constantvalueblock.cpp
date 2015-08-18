@@ -64,11 +64,12 @@ bool ConstantValueBlock::connectInput(ConnectionInterface *)
     return false;
 }
 
-bool ConstantValueBlock::connectOutput(ConnectionInterface *output)
+bool ConstantValueBlock::connectOutput(ConnectionInterface *connection)
 {
-    if(output)
+    if(!this->outputs.contains(connection))
     {
-        this->outputs.push_back(output);
+        connection->connectInput(this);
+        this->outputs.push_back(connection);
         return true;
     }
     else

@@ -2,14 +2,25 @@
 
 SimulinkEngine::SimulinkEngine()
 {
-    this->processedBlocks = std::vector<BlockInterface*>();
-    this->connections = std::vector<ConnectionInterface*>();
+    this->processedBlocks = QVector<BlockInterface*>();
+    this->connections = QVector<ConnectionInterface*>();
 }
 
 SimulinkEngine::~SimulinkEngine()
 {
-    this->connections.clear();
+    QVector<BlockInterface*>::iterator blocks;
+    for(blocks=this->processedBlocks.begin();blocks!=this->processedBlocks.end();blocks++)
+    {
+        delete *blocks;
+    }
     this->processedBlocks.clear();
+
+    QVector<ConnectionInterface*>::Iterator conns;
+    for(conns=this->connections.begin();conns!=this->connections.end();conns++)
+    {
+        delete *conns;
+    }
+    this->connections.clear();
 }
 
 void SimulinkEngine::addBlock(BlockInterface* block)
@@ -23,9 +34,11 @@ ConnectionInterface* SimulinkEngine::addConnection(BlockInterface* begin, BlockI
     if(begin&&end)
     {
         ConnectionInterface* connection = new Connection();
-        begin->connectOutput(connection);
-        end->connectInput(connection);
-        return connection;
+        if(begin->connectOutput(connection)&& end->connectInput(connection))
+        {
+            this->connections.push_back(connection);
+            return connection;
+        }
     }
     return nullptr;
 }
@@ -54,7 +67,11 @@ void SimulinkEngine::deleteConnection(ConnectionInterface* connection)
 
 void SimulinkEngine::run()
 {
-
+    QVector<BlockInterface*>::iterator it;
+    for(it=this->processedBlocks.begin();it!=this->processedBlocks.end();it++)
+    {
+        (*it)->run();
+    }
 }
 
 void SimulinkEngine::pause()

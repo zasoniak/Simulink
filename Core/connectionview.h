@@ -11,7 +11,7 @@ class ConnectionView : public View
 {
 public:
     ConnectionView();
-    bool initialize(BlockView* begin, BlockView* end);
+    ConnectionView(BlockView* begin, BlockView* end, ConnectionInterface* connection);
     ConnectionInterface* getConnection();
     virtual void paint(QPainter *painter) Q_DECL_OVERRIDE;
 private:

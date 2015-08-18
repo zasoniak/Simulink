@@ -9,8 +9,8 @@ class Connection : public ConnectionInterface
 {
 public:
     Connection();
-    virtual bool connectInput(BlockInterface*) Q_DECL_OVERRIDE;
-    virtual bool connectOutput(BlockInterface *) Q_DECL_OVERRIDE;
+    virtual void connectInput(BlockInterface*) Q_DECL_OVERRIDE;
+    virtual void connectOutput(BlockInterface *) Q_DECL_OVERRIDE;
     virtual void disconnect() Q_DECL_OVERRIDE;
     virtual void run(Data* data) Q_DECL_OVERRIDE; //matrixes
 

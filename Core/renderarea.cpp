@@ -136,23 +136,39 @@ void RenderArea::mousePressEvent(QMouseEvent *event)
             BlockView* blockSelected = checkBlockByCoordinates(event->pos());
             if(blockSelected && (blockSelected!=this->connectionBeginBlock))
             {
-                ConnectionView* connectionView = this->addConnection(this->connectionBeginBlock,blockSelected);
-                if(connectionView)
+                // !!!!! PIERW MA BYĆ ENGINE DOPIERO JAK OKEJ TO WIDOK!
+                ConnectionInterface* newConnection = this->engine->addConnection(this->connectionBeginBlock->getBlock(),blockSelected->getBlock());
+
+                if(newConnection)
                 {
-                    if(this->engine->addConnection(connectionView->getConnection()))
-                    {
-                        this->connectionBeginBlock=NULL;
-                        this->setState(EDITION_STATE_POINTER);
-                    }
-                    else
-                    {
-                        this->setState(EDITION_STATE_POINTER);
-                    }
+                    this->addConnection(this->connectionBeginBlock,blockSelected, newConnection);
+                    this->connectionBeginBlock=NULL;
+                    this->setState(EDITION_STATE_POINTER);
                 }
+                else
+                {
+                    //TODO:: error report!
+                    this->connectionBeginBlock=NULL;
+                    this->setState(EDITION_STATE_POINTER);
+                }
+//                ConnectionView* connectionView = this->addConnection(this->connectionBeginBlock,blockSelected);
+//                if(connectionView)
+//                {
+//                    if(this->engine->addConnection(connectionView->getConnection()))
+//                    {
+//                        this->connectionBeginBlock=NULL;
+//                        this->setState(EDITION_STATE_POINTER);
+//                    }
+//                    else
+//                    {
+//                        this->setState(EDITION_STATE_POINTER);
+//                    }
+//                }
             }
             else
             {
-                   this->setState(EDITION_STATE_POINTER);
+                this->connectionBeginBlock=NULL;
+                this->setState(EDITION_STATE_POINTER);
             }
         }
         break;
@@ -229,14 +245,9 @@ void RenderArea::addBlock(BlockInterface* block)
 }
 
 
-ConnectionView* RenderArea::addConnection(BlockView* begin, BlockView* end)
+ConnectionView* RenderArea::addConnection(BlockView* begin, BlockView* end, ConnectionInterface* connection)
 {
-    ConnectionView* connection = new ConnectionView();
-    if(connection->initialize(begin,end))
-    {
-        this->connectionViews.push_back(connection);
-        this->repaint();
-        return connection;
-    }
-    return NULL;
+    ConnectionView* connectionView = new ConnectionView(begin,end,connection);
+    this->connectionViews.push_back(connectionView);
+    this->repaint();
 }

@@ -20,17 +20,21 @@ void DisplayBlock::initialize()
 
 void DisplayBlock::run(Data* data, ConnectionInterface* source)
 {
-    if(this->inputData.size()!=this->inputs.size())
-        this->inputData.resize(this->inputs.size());
     if(data)
-        this->inputData.replace(this->inputs.indexOf(source),data);
-    this->refreshDialog();
+    {
+        if(this->inputData.size()!=this->inputs.size())
+            this->inputData.resize(this->inputs.size());
+        if(data)
+            this->inputData.replace(this->inputs.indexOf(source),data);
+        this->refreshDialog();
+    }
 }
 
 bool DisplayBlock::connectInput(ConnectionInterface *connection)
 {
     if(!this->inputs.contains(connection))
     {
+        connection->connectOutput(this);
         this->inputs.push_back(connection);
         return true;
     }

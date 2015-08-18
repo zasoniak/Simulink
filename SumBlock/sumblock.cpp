@@ -27,7 +27,7 @@ void SumBlock::initialize()
  * @param data - data from previous step
  * @param source - source of data
  */
-void SumBlock::run(Data* data=0, ConnectionInterface* source)
+void SumBlock::run(Data* data, ConnectionInterface* source)
 {
     if(data)
     {
@@ -74,6 +74,7 @@ bool SumBlock::connectInput(ConnectionInterface *connection)
 {
     if(!this->inputs.contains(connection))
     {
+        connection->connectOutput(this);
         this->inputs.push_back(connection);
         return true;
     }
@@ -92,6 +93,7 @@ bool SumBlock::connectOutput(ConnectionInterface *connection)
 {
     if(!this->outputs.contains(connection))
     {
+        connection->connectInput(this);
         this->outputs.push_back(connection);
         return true;
     }

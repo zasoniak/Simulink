@@ -51,6 +51,8 @@ private slots:
     void about();
     void help();
 
+    void run();
+
 
 private:
     void createActions();
@@ -61,6 +63,7 @@ private:
     QMenu *fileMenu;
     QMenu *pluginMenu;
     QMenu *helpMenu;
+    QMenu *computeMenu;
 
     QAction *newFileAction;
     QAction *openAction;
@@ -69,6 +72,7 @@ private:
     QAction *exitAction;
     QAction *loadPluginsAction;
     QAction *unLoadPluginsAction;
+    QAction *runAction;
     QAction *aboutAction;
     QAction *helpAction;
 

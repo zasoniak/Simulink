@@ -24,11 +24,8 @@ public:
 
 
 private:
-
-
-
-    std::vector<BlockInterface*> processedBlocks;
-    std::vector<ConnectionInterface*> connections;
+    QVector<BlockInterface*> processedBlocks;
+    QVector<ConnectionInterface*> connections;
 
 };
 
