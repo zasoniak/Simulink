@@ -134,14 +134,20 @@ void RenderArea::mousePressEvent(QMouseEvent *event)
         else    //drugi klik
         {
             BlockView* blockSelected = checkBlockByCoordinates(event->pos());
-            if(blockSelected)
+            if(blockSelected && (blockSelected!=this->connectionBeginBlock))
             {
                 ConnectionView* connectionView = this->addConnection(this->connectionBeginBlock,blockSelected);
                 if(connectionView)
                 {
-                    this->engine->addConnection(connectionView->getConnection());
-                    this->connectionBeginBlock=NULL;
-                    this->setState(EDITION_STATE_POINTER);
+                    if(this->engine->addConnection(connectionView->getConnection()))
+                    {
+                        this->connectionBeginBlock=NULL;
+                        this->setState(EDITION_STATE_POINTER);
+                    }
+                    else
+                    {
+                        this->setState(EDITION_STATE_POINTER);
+                    }
                 }
             }
             else

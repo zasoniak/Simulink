@@ -1,9 +1,17 @@
 #ifndef CONSTANTVALUE_H
 #define CONSTANTVALUE_H
 
+
 #include <QObject>
 #include <QVector>
 #include <QtGui/QImage>
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QTextEdit>
+#include <QGridLayout>
+#include <QSpinBox>
+
 
 #include "blockinterface.h"
 #include "blockview.h"
@@ -38,6 +46,13 @@ private:
     const static QString blockName;
     Data* outputData;
     QVector<ConnectionInterface*> outputs;
+
+    //display variables
+    QDialog* dialog;
+    QGridLayout* changingLayout;
+
+    void refreshDialog();
+    QString dataToText(Data* data);
 };
 
 #endif // CONSTANTVALUE_H

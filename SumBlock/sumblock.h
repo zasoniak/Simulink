@@ -42,6 +42,9 @@ private:
     QVector<ConnectionInterface*> outputs;
     QMap<ConnectionInterface*,Data*> inputData;
 
+
+    Data* calculate();
+
 signals:
 
 public slots:
