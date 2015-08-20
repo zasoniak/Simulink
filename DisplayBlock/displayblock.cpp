@@ -126,12 +126,12 @@ void DisplayBlock::refreshDialog()
     else
     {
         QMap<ConnectionInterface*,Data*>::iterator it;
+        int i=0;
         for(it=this->inputData.begin();it!=this->inputData.end();it++)
         {
             QString value = dataToText(*it);
-            QTextEdit* dataToDisplay = new QTextEdit(value);
-            changingLayout->addWidget(dataToDisplay);
-            this->displayedData.push_back(dataToDisplay);
+            this->displayedData.at(i)->setPlainText(value);
+            i++;
         }
     }
 }

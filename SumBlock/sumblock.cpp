@@ -64,7 +64,7 @@ Data* SumBlock::calculate()
     //matrixes          5
 
 
-    int status =0;
+    int status =5;
 
     switch (status) {
     case 1:
@@ -88,10 +88,18 @@ Data* SumBlock::calculate()
     case 5:
     {
         QVector<int> size = QVector<int>();
-        for(it=this->inputData.begin();it!=this->inputData.end()-1;it++)
-        {
+        size.insert(0,this->inputData.first()->size.at(0));
+        size.insert(1,this->inputData.first()->size.at(1));
+        QVector<double> values = QVector<double>(this->inputData.first()->dataArray.size(),0);
 
+        for(it=this->inputData.begin();it!=this->inputData.end();it++)
+        {
+            for(int i =0; i<this->inputData.first()->dataArray.size();i++)
+            {
+                values.replace(i,values.at(i)+(*it)->dataArray.at(i));
+            }
         }
+        return new Data(2,size,values);
         break;
     }
     default:
