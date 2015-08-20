@@ -4,6 +4,7 @@ const QString DisplayBlock::blockName = "DisplayBlock";
 DisplayBlock::DisplayBlock(QObject *parent) : QObject(parent)
 {
     this->inputs = QVector<ConnectionInterface*>();
+    this->inputData = QMap<ConnectionInterface*,Data*>();
     this->properties = new DisplayBlockProperties();
 
     this->dialog = new QDialog();
@@ -22,10 +23,11 @@ void DisplayBlock::run(Data* data, ConnectionInterface* source)
 {
     if(data)
     {
-        if(this->inputData.size()!=this->inputs.size())
-            this->inputData.resize(this->inputs.size());
-        if(data)
-            this->inputData.replace(this->inputs.indexOf(source),data);
+        this->inputData.insert(source,data);
+//        if(this->inputData.size()!=this->inputs.size())
+//            this->inputData.resize(this->inputs.size());
+//        if(data)
+//            this->inputData.replace(this->inputs.indexOf(source),data);
         this->refreshDialog();
     }
 }
@@ -74,7 +76,6 @@ QImage* DisplayBlock::getView()
 
 void DisplayBlock::openWindow()
 {
-    refreshDialog();
     dialog->show();
 }
 
@@ -112,18 +113,19 @@ void DisplayBlock::refreshDialog()
         }
 
 
-        QVector<Data*>::iterator it;
+        QMap<ConnectionInterface*,Data*>::iterator it;
         for(it=this->inputData.begin();it!=this->inputData.end();it++)
         {
             QString value = dataToText(*it);
-            QTextEdit* dataToDisplay = new QTextEdit(value);
+            QTextEdit* dataToDisplay = new QTextEdit();
+            dataToDisplay->setPlainText(value);
             changingLayout->addWidget(dataToDisplay);
             this->displayedData.push_back(dataToDisplay);
         }
     }
     else
     {
-        QVector<Data*>::iterator it;
+        QMap<ConnectionInterface*,Data*>::iterator it;
         for(it=this->inputData.begin();it!=this->inputData.end();it++)
         {
             QString value = dataToText(*it);
@@ -146,7 +148,7 @@ QString DisplayBlock::dataToText(Data* data)
         for(it=data->dataArray.begin();it!=data->dataArray.end();it++)
         {
             value.append(QString::number(*it));
-            value.append(" ");
+            value.append("\t");
         }
         value.append("]");
     }
@@ -158,10 +160,13 @@ QString DisplayBlock::dataToText(Data* data)
         QVector<double>::iterator it;
         for(it=data->dataArray.begin();it!=data->dataArray.end();it++)
         {
-            if(!(columnCounter%columnCount)&&columnCounter)
+            if((!(columnCounter%columnCount))&&columnCounter)
+            {
                 value.append("\n");
+            }
             value.append(QString::number(*it));
-            value.append(" ");
+            value.append("\t");
+            columnCounter++;
         }
     }
     else    // ? dunno how to display

@@ -37,7 +37,7 @@ void SumBlock::run(Data* data, ConnectionInterface* source)
             //TODO: calc output here
             this->outputData = calculate();
 
-            QVector<ConnectionInterface*>::iterator it;
+            QVector<ConnectionInterface* >::iterator it;
             for(it=this->outputs.begin();it!=this->outputs.end();it++)
             {
                 (*it)->run(this->outputData);
@@ -49,16 +49,93 @@ void SumBlock::run(Data* data, ConnectionInterface* source)
 
 Data* SumBlock::calculate()
 {
+    //only 1 input
+    if(this->inputData.size()==1)
+        return this->inputData.first();
+
     QMap<ConnectionInterface*,Data*>::iterator it;
     Data* result;
+
+    //error             0
+    //scalars           1
+    //scalar + matrix   2
+    //scalar + vector   3
+    //vectors           4
+    //matrixes          5
+
+
+    int status =0;
+
+    switch (status) {
+    case 1:
+    {
+        double value=0;
+        for(it=this->inputData.begin();it!=this->inputData.end();it++)
+        {
+            value+=(*it)->dataArray.at(0);
+        }
+        result = new Data();
+        result->dataArray.replace(0,value);
+        break;
+    }
+    case 2:
+    case 3:
+    {
+
+        break;
+    }
+    case 4:
+    case 5:
+    {
+        QVector<int> size = QVector<int>();
+        for(it=this->inputData.begin();it!=this->inputData.end()-1;it++)
+        {
+
+        }
+        break;
+    }
+    default:
+        return new Data();
+        break;
+    }
+
     for(it=this->inputData.begin();it!=this->inputData.end()-1;it++)
     {
         if((*it)->dimensions==(*(it+1))->dimensions)
         {
+            if((*it)->dimensions==1)    //scalar or vector
+            {
+                result = new Data(1,(*it)->size,QVector<double>());
+                QVector<double>::iterator value;
+                QVector<double>::iterator value2;
+                for(value=(*it)->dataArray.begin(),value2=(*(it+1))->dataArray.begin() ;value!=(*it)->dataArray.end()||value2!=(*(it+1))->dataArray.end();value++, value2++)
+                {
+                    result->dataArray.push_back((*value)+(*value2));
+                }
+            }
+            else
+                return new Data();
+            //matrix
             //TODO:: calc dimension of result and result
         }
+        else if((*it)->dimensions==1 &&(*it)->size.at(0)==1)    //first is scalar
+        {
+            QVector<double>::iterator value2;
+            for(value2=(*(it+1))->dataArray.begin() ;value2!=(*(it+1))->dataArray.end(); value2++)
+            {
+                result->dataArray.push_back((*value2)+(*it)->dataArray.at(0));
+            }
+        }
+        else if((*(it+1))->dimensions==1 &&(*(it+1))->size.at(0)==1)    //second is scalar
+        {
+            QVector<double>::iterator value;
+            for(value=(*it)->dataArray.begin();value!=(*it)->dataArray.end();value++)
+            {
+                result->dataArray.push_back((*value)+(*(it+1))->dataArray.at(0));
+            }
+        }
         else
-            return NULL;
+            return new Data();
     }
     return result;
 }

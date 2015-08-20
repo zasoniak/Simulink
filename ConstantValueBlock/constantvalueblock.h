@@ -11,6 +11,7 @@
 #include <QTextEdit>
 #include <QGridLayout>
 #include <QSpinBox>
+#include <QLineEdit>
 
 
 #include "blockinterface.h"
@@ -50,9 +51,14 @@ private:
     //display variables
     QDialog* dialog;
     QGridLayout* changingLayout;
+    QSpinBox *columns, *rows;
+    QVector<QLineEdit*> userInput;
 
     void refreshDialog();
-    QString dataToText(Data* data);
+    void getUserData();
+private slots:
+    void columnsNumberChanged(int value);
+    void rowsNumberChanged(int value);
 };
 
 #endif // CONSTANTVALUE_H

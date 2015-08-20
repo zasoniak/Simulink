@@ -42,7 +42,7 @@ public:
 private:
     BlockPropertiesInterface* properties;
     const static QString blockName;
-    QVector<Data*>inputData;
+    QMap<ConnectionInterface*,Data*>inputData;
     QVector<ConnectionInterface*> inputs;
 
     //display data
