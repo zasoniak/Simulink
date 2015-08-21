@@ -6,13 +6,13 @@ BlockView::BlockView()
     this->block=nullptr;
 }
 
-BlockView::BlockView(int x, int y, int width, int heigh) : QRect(x,y,width,heigh)
-{
-    this->image=nullptr;
-    this->block=nullptr;
-}
+//BlockView::BlockView(int x, int y, int width, int heigh) : QRect(x,y,width,heigh)
+//{
+//    this->image=nullptr;
+//    this->block=nullptr;
+//}
 
-BlockView::BlockView(QImage *image, BlockInterface *block): QRect(0,0,100,60)
+BlockView::BlockView(QImage *image, BlockInterface *block): QRect(0,0,120,60)
 {
     this->image=image;
     this->block=block;

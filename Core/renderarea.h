@@ -11,6 +11,7 @@
 #include "blockinterface.h"
 #include "simulinkengine.h"
 #include "propertieswidget.h"
+#include "observable.h"
 
 
 //enumerations
@@ -22,7 +23,9 @@ enum EditionState {
     EDITION_STATE_DELETE_CONNECTION
 };
 
-class RenderArea : public QWidget
+class RenderArea :
+        public QWidget,
+        public Observable
 {
     Q_OBJECT
     Q_ENUMS(EditionState)
@@ -61,8 +64,9 @@ private:
     QVector<ConnectionView*> connectionViews;
 
 
-    ConnectionView* addConnection(BlockView* begin, BlockView* end, ConnectionInterface* connection);
+    void addConnection(BlockView* begin, BlockView* end, ConnectionInterface* connection);
     BlockView* checkBlockByCoordinates(QPoint position);
+    ConnectionView* checkConnectionByCoordinates(QPoint position);
     bool checkCollisions(QPoint position, BlockView *block);
 
 };

@@ -50,16 +50,11 @@ MainWindow::MainWindow(QWidget *parent)
     toolbox->setFixedHeight(400);
     toolbox->setFixedWidth(200);
 
-
-
-
-
     //===== main window layout =================
     QGridLayout *mainLayout = new QGridLayout;
     mainLayout->setColumnMinimumWidth(0,400);
     mainLayout->setColumnStretch(0,4);
     mainLayout->setColumnMinimumWidth(1,200);
-
 
 
     mainLayout->addWidget(renderArea,0,0,2,1);
@@ -71,7 +66,6 @@ MainWindow::MainWindow(QWidget *parent)
     //===== other parts of main window ========
     createActions();
     createMenus();
-    //createToolbars();
 
     //====== title and size policy ============
     setWindowTitle(tr("Simulink"));
@@ -167,37 +161,6 @@ void MainWindow::createMenus()
     helpMenu->addAction(helpAction);
 }
 
-/**
- * @brief MainWindow::createToolbars
- */
-void MainWindow::createToolbars()
-{
-//    QPixmap start("start.png");
-//    QPixmap pause("pause.png");
-//    QPixmap stop("stop.png");
-    QPixmap block("block.png");
-//    QPixmap con("con.png");
-//    QPixmap delete_con("delete_con.png");
-//    QPixmap delete_block("delete_block.png");
-
-
-  //  QToolBar *mainToolbar = new QToolBar(tr("Main"), this);/*addToolBar("Main toolbar");*/
-    //mainToolbar->addAction(addBlockAction);
-//    mainToolbar->addAction(QIcon(con),"New connector");
-//    mainToolbar->addAction(QIcon(delete_con),"Delete block");
-//    mainToolbar->addAction(QIcon(delete_block),"Delete connector");
-//    mainToolbar->show();
- //   mainToolbar->show();
-
- //   addToolBar(Qt::TopToolBarArea, mainToolbar);
-
-
-
-
-}
-
-
-
 //file menu
 void MainWindow::newFile() { }
 void MainWindow::open() { }
@@ -230,7 +193,6 @@ void MainWindow::loadPlugins() {
             pluginList.push_back(it.key());
         }
         this->toolbox->reloadBlockList(pluginList);
-
 
         QString message = tr("New block: ");
         BlockFactoryInterface *factory = (plugins.end()-1).value();
@@ -274,6 +236,15 @@ void MainWindow::valueChanged(ValueType type, QString value)
         break;
     case VALUE_TYPE_NEW_CONNECTION:
         this->renderArea->setState(EDITION_STATE_ADD_CONNECTION);
+        break;
+    case VALUE_TYPE_DELETE_BLOCK:
+        this->renderArea->setState(EDITION_STATE_DELETE_BLOCK);
+        break;
+    case VALUE_TYPE_DELETE_CONNECTION:
+        this->renderArea->setState(EDITION_STATE_DELETE_CONNECTION);
+        break;
+    case VALUE_TYPE_ERROR:
+        this->statusBar()->showMessage(value);
         break;
     default:
         break;

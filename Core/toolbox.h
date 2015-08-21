@@ -27,13 +27,16 @@ private:
     QStringListModel *blockListModel;
 
     QPushButton* newConnectionButton;
-    QAction* newConnectionAction;
+    QPushButton* deleteConnectionButton;
+    QPushButton* deleteBlockButton;
 
 signals:
 
 public slots:
     void blockSelected(QModelIndex);
     void addNewConnection();
+    void deleteConnection();
+    void deleteBlock();
 };
 
 #endif // TOOLBOX_H

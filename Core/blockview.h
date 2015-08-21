@@ -13,7 +13,8 @@ class BlockView : public QRect, public View
 {
 public:
     BlockView();
-    BlockView(int x, int y, int width, int heigh);
+    virtual ~BlockView(){}
+   // BlockView(int x, int y, int width, int heigh);
     BlockView(QImage *image, BlockInterface* block);
 
     QImage* getView();

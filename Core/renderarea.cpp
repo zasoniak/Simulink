@@ -49,11 +49,7 @@ void RenderArea::paintEvent(QPaintEvent *)
     for(blockIterator=blockViews.begin();blockIterator!=blockViews.end();blockIterator++)
     {
         (*blockIterator)->paint(painter);
-
-      //painter.drawRect(*(*blockIterator));
-      //painter->drawImage((*blockIterator)->topLeft(),*((*blockIterator)->getView()));
     }
-
 
     QVector<ConnectionView*>::iterator connectionIterator;
     for(connectionIterator=connectionViews.begin();connectionIterator!=connectionViews.end();connectionIterator++)
@@ -74,7 +70,7 @@ void RenderArea::mouseMoveEvent(QMouseEvent *event)
         {
             if(checkCollisions(event->pos(), editedBlock))
             {
-                 editedBlock->moveCenter(event->pos());
+                editedBlock->moveCenter(event->pos());
                 repaint();
             }
         }
@@ -107,10 +103,8 @@ void RenderArea::mousePressEvent(QMouseEvent *event)
         {
             setState(EDITION_STATE_POINTER);
             BlockView* block = new BlockView(this->blockToAdd->getView(),this->blockToAdd);
-//            BlockView block = BlockView(-500,-500,100,60);
             block->moveCenter(event->pos());
             blockViews.push_back(block);
-//            repaint();
             this->engine->addBlock(block->getBlock());
             this->blockToAdd=NULL;
         }
@@ -136,7 +130,6 @@ void RenderArea::mousePressEvent(QMouseEvent *event)
             BlockView* blockSelected = checkBlockByCoordinates(event->pos());
             if(blockSelected && (blockSelected!=this->connectionBeginBlock))
             {
-                // !!!!! PIERW MA BYĆ ENGINE DOPIERO JAK OKEJ TO WIDOK!
                 ConnectionInterface* newConnection = this->engine->addConnection(this->connectionBeginBlock->getBlock(),blockSelected->getBlock());
 
                 if(newConnection)
@@ -147,30 +140,59 @@ void RenderArea::mousePressEvent(QMouseEvent *event)
                 }
                 else
                 {
-                    //TODO:: error report!
+                    notifyObservers(VALUE_TYPE_ERROR, "Cannot create connection, please try again");
                     this->connectionBeginBlock=NULL;
                     this->setState(EDITION_STATE_POINTER);
                 }
-//                ConnectionView* connectionView = this->addConnection(this->connectionBeginBlock,blockSelected);
-//                if(connectionView)
-//                {
-//                    if(this->engine->addConnection(connectionView->getConnection()))
-//                    {
-//                        this->connectionBeginBlock=NULL;
-//                        this->setState(EDITION_STATE_POINTER);
-//                    }
-//                    else
-//                    {
-//                        this->setState(EDITION_STATE_POINTER);
-//                    }
-//                }
             }
             else
             {
+                notifyObservers(VALUE_TYPE_ERROR, "Cannot create connection, please try again");
                 this->connectionBeginBlock=NULL;
                 this->setState(EDITION_STATE_POINTER);
             }
         }
+        break;
+    }
+    case EDITION_STATE_DELETE_BLOCK:
+    {
+        BlockView  *editedBlock = checkBlockByCoordinates(event->pos());
+        if(editedBlock!=NULL)
+        {
+            QVector<ConnectionInterface*> connectionsToDelete = editedBlock->getBlock()->getConnections();
+            QVector<ConnectionInterface*>::iterator it;
+
+            for(it=connectionsToDelete.begin();it!=connectionsToDelete.end();it++)
+            {
+                //odszukac connection view
+                QVector<ConnectionView*>::iterator views;
+                for(views=this->connectionViews.begin();views!=this->connectionViews.end();views++)
+                {
+                    if((*views)->getConnection() == (*it))
+                    {
+                        this->engine->deleteConnection((*it));
+                        this->connectionViews.removeOne(*views);
+                        break;
+                    }
+                }
+            }
+            this->engine->deleteBlock(editedBlock->getBlock());
+            this->blockViews.removeOne(editedBlock);
+            delete editedBlock;
+        }
+        this->setState(EDITION_STATE_POINTER);
+        break;
+    }
+    case EDITION_STATE_DELETE_CONNECTION:
+    {
+        ConnectionView* connectionSelected = checkConnectionByCoordinates(event->pos());
+        if(connectionSelected)
+        {
+            this->engine->deleteConnection(connectionSelected->getConnection());
+            this->connectionViews.removeOne(connectionSelected);
+            delete connectionSelected;
+        }
+        this->setState(EDITION_STATE_POINTER);
         break;
     }
     default:
@@ -206,7 +228,43 @@ BlockView* RenderArea::checkBlockByCoordinates(QPoint position)
       if(position.rx()>=(*it)->left() && position.rx()<=(*it)->right() &&position.ry()>=(*it)->top() &&position.ry()<=(*it)->bottom())
         return (*it);
     }
-    return NULL;
+    return nullptr;
+}
+
+ConnectionView* RenderArea::checkConnectionByCoordinates(QPoint position)
+{
+    QVector<ConnectionView*>::iterator it;
+    for(it=connectionViews.begin();it!=connectionViews.end();it++)
+    {
+        QPoint begin = (*it)->getBegin();
+        QPoint end = (*it)->getEnd();
+
+
+        double A,B,C, distance;
+        if(end.ry()==begin.ry())
+        {
+            A=0;
+            B=1;
+            C=end.ry();
+        }
+        if(end.rx()==begin.rx())
+        {
+            B=0;
+            A=1;
+            C=end.rx();
+        }
+        A=1;
+        B= (double)(begin.rx()-end.rx())/(double)(end.ry()-begin.ry());
+        C= -(begin.rx()) - B*begin.ry();
+
+        distance = abs(A*position.rx()+B*position.ry()+C) / sqrt(A*A +B*B);
+
+        if(distance<5)
+        {
+            return *it;
+        }
+    }
+    return nullptr;
 }
 
 /**
@@ -245,7 +303,7 @@ void RenderArea::addBlock(BlockInterface* block)
 }
 
 
-ConnectionView* RenderArea::addConnection(BlockView* begin, BlockView* end, ConnectionInterface* connection)
+void RenderArea::addConnection(BlockView* begin, BlockView* end, ConnectionInterface* connection)
 {
     ConnectionView* connectionView = new ConnectionView(begin,end,connection);
     this->connectionViews.push_back(connectionView);

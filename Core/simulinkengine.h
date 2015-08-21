@@ -11,17 +11,12 @@ public:
     SimulinkEngine();
     virtual ~SimulinkEngine();
 
-
     void addBlock(BlockInterface* );
     ConnectionInterface* addConnection(BlockInterface*, BlockInterface*);
     ConnectionInterface* addConnection(ConnectionInterface* interface);
     void deleteBlock(BlockInterface*);
     void deleteConnection(ConnectionInterface*);
-
     void run();
-    void pause();
-    void stop();
-
 
 private:
     QVector<BlockInterface*> processedBlocks;

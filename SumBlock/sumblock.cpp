@@ -53,8 +53,67 @@ Data* SumBlock::calculate()
     if(this->inputData.size()==1)
         return this->inputData.first();
 
-    QMap<ConnectionInterface*,Data*>::iterator it;
+
     Data* result;
+    int status =1;
+    int scalarsCounter=0;
+    int vectorsCounter=0;
+    int matrixesCounter=0;
+    QVector<int> resultSize = QVector<int>();
+    resultSize.append(1);
+    int resultDimentions=1;
+    QMap<ConnectionInterface*,Data*>::iterator it;
+    for(it=this->inputData.begin();it!=this->inputData.end();it++)
+    {
+        if(status)
+        {
+            if((*it)->dimensions==1 &&(*it)->size.at(0)==1) //scalar
+                scalarsCounter++;
+            else if((*it)->dimensions==1)   //vector
+            {
+                vectorsCounter++;
+                if(matrixesCounter) //there cannot be a matrix
+                    status=0;
+
+                if(vectorsCounter==1)
+                {
+                    resultDimentions=1;
+                    resultSize.replace(0,(*it)->size.at(0));
+                }
+                else if((*it)->size.at(0)!=resultSize.at(0))
+                    status=0;
+            }
+            else    //matrix
+            {
+                matrixesCounter++;
+                if(vectorsCounter)  //there cannot be a vector
+                    status=0;
+
+                if(matrixesCounter==1)
+                {
+                    resultDimentions = 2;
+                    resultSize.resize((*it)->size.size());
+                    for(int dimensionSize=0; dimensionSize<(*it)->size.size();dimensionSize++)  //check size of matrixes
+                    {
+                         resultSize.replace(dimensionSize,(*it)->size.at(dimensionSize));
+                    }
+                }
+                else
+                {
+                    if(resultSize.size()==(*it)->size.size())
+                    {
+                        for(int dimensionSize=0; dimensionSize<(*it)->size.size();dimensionSize++)  //check size of matrixes
+                        {
+                            if(resultSize.at(dimensionSize)!=(*it)->size.at(dimensionSize))
+                                status=0;
+                        }
+                    }
+                    else
+                        status=0;
+                }
+            }
+        }
+    }
 
     //error             0
     //scalars           1
@@ -63,8 +122,37 @@ Data* SumBlock::calculate()
     //vectors           4
     //matrixes          5
 
+    if(status)
+    {
+        if(matrixesCounter&&scalarsCounter)
+        {
+            result = new Data(resultDimentions,resultSize, QVector<double>(resultSize.at(0)*resultSize.at(1)));
+            status = 2;
+        }
+        else if(vectorsCounter&&scalarsCounter)
+        {
+            result = new Data(resultDimentions,resultSize, QVector<double>(resultSize.at(0)));
+            status=3;
+        }
+        else if(scalarsCounter)
+        {
+            result = new Data(resultDimentions,resultSize, QVector<double>(1));
+            status=1;
+        }
+        else if(matrixesCounter)
+        {
+            result = new Data(resultDimentions,resultSize, QVector<double>(resultSize.at(0)*resultSize.at(1)));
+            status=5;
+        }
+        else if(vectorsCounter)
+        {
+            result = new Data(resultDimentions,resultSize, QVector<double>(resultSize.at(0)));
+            status=4;
+        }
+    }
 
-    int status =5;
+//check powinien zwracac pusty wektor o wlasciwym wymiarze (do wypelnienia dalej)
+
 
     switch (status) {
     case 1:
@@ -74,32 +162,39 @@ Data* SumBlock::calculate()
         {
             value+=(*it)->dataArray.at(0);
         }
-        result = new Data();
         result->dataArray.replace(0,value);
         break;
     }
     case 2:
     case 3:
     {
-
+        for(it=this->inputData.begin();it!=this->inputData.end();it++)
+        {
+            if((*it)->dimensions==1&&(*it)->size.at(0)==1)
+            for(int i =0; i<result->dataArray.size();i++)
+            {
+                result->dataArray.replace(i,result->dataArray.at(i)+(*it)->dataArray.at(0));
+            }
+            else
+            for(int i =0; i<result->dataArray.size();i++)
+            {
+                result->dataArray.replace(i,result->dataArray.at(i)+(*it)->dataArray.at(i));
+            }
+        }
+        return result;
         break;
     }
     case 4:
     case 5:
     {
-        QVector<int> size = QVector<int>();
-        size.insert(0,this->inputData.first()->size.at(0));
-        size.insert(1,this->inputData.first()->size.at(1));
-        QVector<double> values = QVector<double>(this->inputData.first()->dataArray.size(),0);
-
         for(it=this->inputData.begin();it!=this->inputData.end();it++)
         {
-            for(int i =0; i<this->inputData.first()->dataArray.size();i++)
+            for(int i =0; i<result->dataArray.size();i++)
             {
-                values.replace(i,values.at(i)+(*it)->dataArray.at(i));
+                result->dataArray.replace(i,result->dataArray.at(i)+(*it)->dataArray.at(i));
             }
         }
-        return new Data(2,size,values);
+        return result;
         break;
     }
     default:
@@ -235,4 +330,16 @@ QImage* SumBlock::getView()
 void SumBlock::openWindow()
 {
 
+}
+
+
+QVector<ConnectionInterface*> SumBlock::getConnections()
+{
+    QVector<ConnectionInterface*> connections = QVector<ConnectionInterface*>(this->inputs);
+    QVector<ConnectionInterface*>::iterator it;
+    for(it=this->outputs.begin();it!=this->outputs.end();it++)
+    {
+        connections.append(*it);
+    }
+    return connections;
 }

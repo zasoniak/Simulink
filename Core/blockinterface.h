@@ -21,6 +21,7 @@ public:
     virtual void disconnect(ConnectionInterface *) =0;
 
     virtual BlockPropertiesInterface* getProperties()=0;
+    virtual QVector<ConnectionInterface*> getConnections()=0;
     virtual QString getBlockName()=0;
     virtual QImage* getView()=0;
     virtual void openWindow()=0;

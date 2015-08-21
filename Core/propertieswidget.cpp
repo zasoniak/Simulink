@@ -11,7 +11,6 @@ PropertiesWidget::PropertiesWidget(QWidget *parent) : QWidget(parent)
     //====== layout =============================
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(this->propertiesTableView);
-//    this->propertiesTableView->setModel(this->propertiesModel);
 }
 
 

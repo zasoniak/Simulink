@@ -11,14 +11,9 @@ public:
     virtual ~ConnectionInterface() {}
     virtual void connectInput(BlockInterface*)=0;
     virtual void connectOutput(BlockInterface*)=0;
-
-
     virtual void disconnect()=0;
-
     virtual void run(Data* data)=0;
-
 };
-
 
 #define ConnectionInterface_iid "sony.simulink.ConnectionInterface"
 

@@ -30,3 +30,19 @@ ConnectionInterface* ConnectionView::getConnection()
 {
     return this->connection;
 }
+
+
+
+QPoint ConnectionView::getBegin()
+{
+    QPoint beginPoint = this->begin->center();
+    beginPoint.rx()=beginPoint.rx()+60;
+    return beginPoint;
+}
+
+QPoint ConnectionView::getEnd()
+{
+    QPoint endPoint = this->end->center();
+    endPoint.rx() = endPoint.rx()-50;
+    return endPoint;
+}

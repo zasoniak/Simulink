@@ -9,10 +9,11 @@ class Connection : public ConnectionInterface
 {
 public:
     Connection();
+    virtual ~Connection(){}
     virtual void connectInput(BlockInterface*) Q_DECL_OVERRIDE;
     virtual void connectOutput(BlockInterface *) Q_DECL_OVERRIDE;
     virtual void disconnect() Q_DECL_OVERRIDE;
-    virtual void run(Data* data) Q_DECL_OVERRIDE; //matrixes
+    virtual void run(Data* data) Q_DECL_OVERRIDE;
 
 private:
     BlockInterface *input, *output;

@@ -24,11 +24,8 @@ void DisplayBlock::run(Data* data, ConnectionInterface* source)
     if(data)
     {
         this->inputData.insert(source,data);
-//        if(this->inputData.size()!=this->inputs.size())
-//            this->inputData.resize(this->inputs.size());
-//        if(data)
-//            this->inputData.replace(this->inputs.indexOf(source),data);
-        this->refreshDialog();
+        if(this->inputData.size()==this->inputs.size())
+            this->refreshDialog();
     }
 }
 
@@ -81,14 +78,11 @@ void DisplayBlock::openWindow()
 
 void DisplayBlock::refreshDialog()
 {
-    if(inputs.size()!=displayedInputs.size())
-    {
         //clear dialog from previous settings
         QVector<QLabel*>::iterator channels;
         for(channels=this->displayedInputs.begin();channels!=this->displayedInputs.end();channels++)
         {
             delete *channels;
-//            changingLayout->removeWidget(*channels);
         }
         this->displayedInputs.clear();
 
@@ -96,13 +90,12 @@ void DisplayBlock::refreshDialog()
         for(data=this->displayedData.begin();data!=this->displayedData.end();data++)
         {
             delete *data;
-//            changingLayout->removeWidget(*data);
         }
         this->displayedData.clear();
 
-        //setup new dialog layout
-        int channelsCounter = this->inputs.size();
-        for(int i=1; i<=channelsCounter;i++)
+        int i=1;
+        QMap<ConnectionInterface*,Data*>::iterator it;
+        for(it=this->inputData.begin();it!=this->inputData.end();it++)
         {
             QString name = "Channel number ";
             name.append(QString::number(i));
@@ -110,30 +103,14 @@ void DisplayBlock::refreshDialog()
             QLabel* channelLabel = new QLabel(name);
             changingLayout->addWidget(channelLabel);
             this->displayedInputs.push_back(channelLabel);
-        }
+            i++;
 
-
-        QMap<ConnectionInterface*,Data*>::iterator it;
-        for(it=this->inputData.begin();it!=this->inputData.end();it++)
-        {
             QString value = dataToText(*it);
             QTextEdit* dataToDisplay = new QTextEdit();
             dataToDisplay->setPlainText(value);
             changingLayout->addWidget(dataToDisplay);
             this->displayedData.push_back(dataToDisplay);
         }
-    }
-    else
-    {
-        QMap<ConnectionInterface*,Data*>::iterator it;
-        int i=0;
-        for(it=this->inputData.begin();it!=this->inputData.end();it++)
-        {
-            QString value = dataToText(*it);
-            this->displayedData.at(i)->setPlainText(value);
-            i++;
-        }
-    }
 }
 
 
@@ -144,13 +121,11 @@ QString DisplayBlock::dataToText(Data* data)
     if(data->dimensions==1) //scalar or vector
     {
         QVector<double>::iterator it;
-        value.append("[ ");
         for(it=data->dataArray.begin();it!=data->dataArray.end();it++)
         {
             value.append(QString::number(*it));
             value.append("\t");
         }
-        value.append("]");
     }
     else if(data->dimensions==2)    //matrix
     {
@@ -171,7 +146,12 @@ QString DisplayBlock::dataToText(Data* data)
     }
     else    // ? dunno how to display
     {
-        value.append("cannot be displayed - to many dimensions");
+        value.append("Values cannot be displayed - to many dimensions");
     }
     return value;
+}
+
+QVector<ConnectionInterface*> DisplayBlock::getConnections()
+{
+    return this->inputs;
 }

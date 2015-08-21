@@ -182,5 +182,8 @@ void ConstantValueBlock::rowsNumberChanged(int value)
     refreshDialog();
 }
 
-
+QVector<ConnectionInterface*> ConstantValueBlock::getConnections()
+{
+    return this->outputs;
+}
 

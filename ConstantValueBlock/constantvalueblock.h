@@ -36,6 +36,8 @@ public:
     virtual bool connectOutput(ConnectionInterface *) Q_DECL_OVERRIDE;
     virtual void disconnect(ConnectionInterface *) Q_DECL_OVERRIDE;
 
+
+    virtual QVector<ConnectionInterface*> getConnections() Q_DECL_OVERRIDE;
     virtual BlockPropertiesInterface* getProperties() Q_DECL_OVERRIDE;
     virtual QString getBlockName() Q_DECL_OVERRIDE;
 
