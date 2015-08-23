@@ -16,6 +16,8 @@ DisplayBlock::DisplayBlock(QObject *parent) : QObject(parent)
 
 void DisplayBlock::initialize()
 {
+    this->inputData.clear();
+    this->refreshDialog();
 
 }
 

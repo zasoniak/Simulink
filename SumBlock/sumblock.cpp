@@ -151,9 +151,6 @@ Data* SumBlock::calculate()
         }
     }
 
-//check powinien zwracac pusty wektor o wlasciwym wymiarze (do wypelnienia dalej)
-
-
     switch (status) {
     case 1:
     {
@@ -163,6 +160,7 @@ Data* SumBlock::calculate()
             value+=(*it)->dataArray.at(0);
         }
         result->dataArray.replace(0,value);
+        return result;
         break;
     }
     case 2:
@@ -202,45 +200,45 @@ Data* SumBlock::calculate()
         break;
     }
 
-    for(it=this->inputData.begin();it!=this->inputData.end()-1;it++)
-    {
-        if((*it)->dimensions==(*(it+1))->dimensions)
-        {
-            if((*it)->dimensions==1)    //scalar or vector
-            {
-                result = new Data(1,(*it)->size,QVector<double>());
-                QVector<double>::iterator value;
-                QVector<double>::iterator value2;
-                for(value=(*it)->dataArray.begin(),value2=(*(it+1))->dataArray.begin() ;value!=(*it)->dataArray.end()||value2!=(*(it+1))->dataArray.end();value++, value2++)
-                {
-                    result->dataArray.push_back((*value)+(*value2));
-                }
-            }
-            else
-                return new Data();
-            //matrix
-            //TODO:: calc dimension of result and result
-        }
-        else if((*it)->dimensions==1 &&(*it)->size.at(0)==1)    //first is scalar
-        {
-            QVector<double>::iterator value2;
-            for(value2=(*(it+1))->dataArray.begin() ;value2!=(*(it+1))->dataArray.end(); value2++)
-            {
-                result->dataArray.push_back((*value2)+(*it)->dataArray.at(0));
-            }
-        }
-        else if((*(it+1))->dimensions==1 &&(*(it+1))->size.at(0)==1)    //second is scalar
-        {
-            QVector<double>::iterator value;
-            for(value=(*it)->dataArray.begin();value!=(*it)->dataArray.end();value++)
-            {
-                result->dataArray.push_back((*value)+(*(it+1))->dataArray.at(0));
-            }
-        }
-        else
-            return new Data();
-    }
-    return result;
+//    for(it=this->inputData.begin();it!=this->inputData.end()-1;it++)
+//    {
+//        if((*it)->dimensions==(*(it+1))->dimensions)
+//        {
+//            if((*it)->dimensions==1)    //scalar or vector
+//            {
+//                result = new Data(1,(*it)->size,QVector<double>());
+//                QVector<double>::iterator value;
+//                QVector<double>::iterator value2;
+//                for(value=(*it)->dataArray.begin(),value2=(*(it+1))->dataArray.begin() ;value!=(*it)->dataArray.end()||value2!=(*(it+1))->dataArray.end();value++, value2++)
+//                {
+//                    result->dataArray.push_back((*value)+(*value2));
+//                }
+//            }
+//            else
+//                return new Data();
+//            //matrix
+//            //TODO:: calc dimension of result and result
+//        }
+//        else if((*it)->dimensions==1 &&(*it)->size.at(0)==1)    //first is scalar
+//        {
+//            QVector<double>::iterator value2;
+//            for(value2=(*(it+1))->dataArray.begin() ;value2!=(*(it+1))->dataArray.end(); value2++)
+//            {
+//                result->dataArray.push_back((*value2)+(*it)->dataArray.at(0));
+//            }
+//        }
+//        else if((*(it+1))->dimensions==1 &&(*(it+1))->size.at(0)==1)    //second is scalar
+//        {
+//            QVector<double>::iterator value;
+//            for(value=(*it)->dataArray.begin();value!=(*it)->dataArray.end();value++)
+//            {
+//                result->dataArray.push_back((*value)+(*(it+1))->dataArray.at(0));
+//            }
+//        }
+//        else
+//            return new Data();
+//    }
+//    return result;
 }
 
 /**

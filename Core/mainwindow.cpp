@@ -59,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     mainLayout->addWidget(renderArea,0,0,2,1);
     mainLayout->addWidget(toolbox,0,1);
-    mainLayout->addWidget(propertiesWidget,1,1);
+   // mainLayout->addWidget(propertiesWidget,1,1);
     widget->setLayout(mainLayout);
 
 
@@ -211,7 +211,21 @@ void MainWindow::unLoadPlugins() {
     this->pluginManager->unloadPlugins();
 }
 //help menu
-void MainWindow::about() { }
+void MainWindow::about()
+{
+    QDialog *aboutDialog = new QDialog(this);
+    QVBoxLayout* aboutLayout = new QVBoxLayout();
+    QLabel* aboutText = new QLabel("Program Simulink");
+    aboutText->setAlignment(Qt::AlignCenter);
+    QLabel* text = new QLabel("Pozwala w graficzny sposob zestawic bloczki \n i obliczyc wyrazenia matematyczne");
+    text->setAlignment(Qt::AlignCenter);
+    aboutLayout->addWidget(aboutText);
+    aboutLayout->addWidget(text);
+    aboutDialog->setLayout(aboutLayout);
+
+    aboutDialog->resize(320,240);
+    aboutDialog->show();
+}
 void MainWindow::help() { }
 
 
@@ -235,14 +249,26 @@ void MainWindow::valueChanged(ValueType type, QString value)
             this->renderArea->addBlock(temporaryBlock);
         break;
     case VALUE_TYPE_NEW_CONNECTION:
+    {
+        QString message = "Click on begining block then on ending block to create connection.";
+        this->statusBar()->showMessage(message);
         this->renderArea->setState(EDITION_STATE_ADD_CONNECTION);
         break;
+    }
     case VALUE_TYPE_DELETE_BLOCK:
+    {
+        QString message = "Select block to delete.";
+        this->statusBar()->showMessage(message);
         this->renderArea->setState(EDITION_STATE_DELETE_BLOCK);
         break;
+    }
     case VALUE_TYPE_DELETE_CONNECTION:
+    {
+        QString message = "Select connection to delete.";
+        this->statusBar()->showMessage(message);
         this->renderArea->setState(EDITION_STATE_DELETE_CONNECTION);
         break;
+    }
     case VALUE_TYPE_ERROR:
         this->statusBar()->showMessage(value);
         break;

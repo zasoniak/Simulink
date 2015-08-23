@@ -59,7 +59,8 @@ ConstantValueBlock::ConstantValueBlock(QObject *parent) : QObject(parent)
 
 void ConstantValueBlock::initialize()
 {
-
+    this->outputData->size.clear();
+    this->outputData->dataArray.clear();
 }
 
 void ConstantValueBlock::run(Data* data, ConnectionInterface* source)
